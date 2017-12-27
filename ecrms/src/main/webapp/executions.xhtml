@@ -1,0 +1,486 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pu="http://primefaces.org/ultima"
+	template="/WEB-INF/template.xhtml">
+
+	<ui:define name="content">
+		<style type="text/css">
+.main-content {
+	padding: 0;
+}
+
+.meeting-datalist .text-column p:last-child {
+	color: #757575;
+}
+
+.meeting-datalist .meeting-item i, .meeting-datalist .meeting-item .meeting-details
+	{
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.meeting-datalist .meeting-item button {
+	float: right;
+}
+
+.meeting-datalist ul {
+	margin: 0;
+	padding: 0;
+}
+
+.ui-meeting-display td:last-child {
+	font-weight: 700;
+}
+
+@media ( max-width :640px) {
+	.meeting-datalist .text-column {
+		text-align: center;
+	}
+}
+</style>
+		<script type="text/javascript">
+function start() {
+    PF('statusDialog').show();
+}
+ 
+function stop() {
+    PF('statusDialog').hide();
+}
+</script>
+		<p:breadCrumb style="margin-bottom:10px;">
+			<p:menuitem value="Dashboard" url="dashboard.xhtml" />
+			<p:menuitem value="Meetings" url="meetings.xhtml" />
+			<p:menuitem value="Meeting details" url="meetingDetails.xhtml" />
+			<p:menuitem value="Execution" url="executions.xhtml" />
+		</p:breadCrumb>
+		<div class="card">
+			<h:form id="myTaskForm">
+				<f:metadata>
+					<f:viewParam name="meetingId" value="#{executionBean.meetingId}" />
+					<f:viewParam name="meetingId" value="#{preMeetingTasks.meetingId}" />
+					<f:viewParam name="meetingId" value="#{meetingCostBean.meetingId}" />
+					<f:viewParam name="meetingId" value="#{meetingsBean.meetingId}" />
+	
+					
+					<f:viewParam name="to" value="#{preMeetingTasks.username}" />
+					<f:viewParam name="to" value="#{executionBean.username}" />
+					<f:viewParam name="to" value="#{meetingReview.username}" />
+					<f:viewParam name="to" value="#{meetingMinutes.username}" />
+					<f:viewParam name="to" value="#{createMeeting.username}" />
+					<f:viewParam name="to" value="#{meetingsBean.username}" />
+					<f:viewParam name="to" value="#{loginBean.username}" />
+				</f:metadata>
+				<div class="ui-g">
+					<div class="ui-g-12">
+						<p:panel header="Executions" id="taskPanel">
+							<p:tabView id="mainTab">
+								<p:tab
+									title="Executions (#{executionBean.executionAssignedToBy().size()})">
+									<p:outputPanel id="inExecution">
+										<p:growl showDetail="true" id="growlInExecution" />
+										<div class="ui-g">
+											<div class="ui-g-12 ui-md-6 ui-lg-11"></div>
+											<div class="ui-g-12 ui-md-6 ui-lg-1">
+												<p:commandLink ajax="false"
+													action="#{executionBean.executionToFollowUp()}"
+													process="@this" update=":myTaskForm:mainTab:inExecution">
+													<i class="fa fa-print" style="font-weight: bold;">
+														Print</i>
+												</p:commandLink>
+											</div>
+										</div>
+										<p:separator />
+										<div class="ui-g">
+											<div class="ui-g-12 ui-md-6 ui-lg-3">
+												<h:outputLabel value="|Name" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-1">
+												<h:outputLabel value="|Given" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-1">
+												<h:outputLabel value="|Start" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-1">
+												<h:outputLabel value="|End" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-2">
+												<h:outputLabel value="|Assigned To"
+													style="font-weight: bold;" />
+											</div>
+
+											<div class="ui-g-12 ui-md-6 ui-lg-2">
+												<h:outputLabel value="|Status" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-1">
+												<h:outputLabel value="|State" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-1">
+												<h:outputLabel value="|Action" style="font-weight: bold;" />
+											</div>
+										</div>
+										<p:separator />
+										<p:repeat var="executions"
+											value="#{executionBean.executionAssignedToBy()}">
+											<div class="ui-g">
+												<div class="ui-g-12 ui-md-6 ui-lg-3">#{executions.resolution.description}</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-1">#{meetingMinutes.customeDate(executions.givenDate)}</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-1">#{meetingMinutes.customeDate(executions.startDate)}</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-1">#{meetingMinutes.customeDate(executions.endDate)}</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-2">#{executions.assignedTo.firstName}
+													#{executions.assignedTo.lastName}</div>
+
+												<div class="ui-g-12 ui-md-6 ui-lg-2">#{executions.status}</div>
+												
+												<div class="ui-g-12 ui-md-6 ui-lg-1"
+													style="width: 30px;height: 30px;-webkit-border-radius: 25px;-moz-border-radius: 25px;border-radius: 25px;background: #{executionBean.coloringExecution(executions)};" />
+												
+												<div class="ui-g-12 ui-md-6 ui-lg-1"
+													style="text-align: center">
+
+													<p:commandLink process="@this" style="margin-left:46px;"
+														action="#{executionBean.openExecution(executions)}"
+														update=":myTaskForm:mainTab:inExecution :myTaskForm:mainTab:exeRejection :myTaskForm:mainTab:exeAprove ">
+														<i class="fa fa-folder-open" title="Open task" />
+													</p:commandLink>
+
+													<p:commandLink process="@this"
+														action="#{executionBean.getExecutionObject(executions)}"
+														update="@widgetVar(inExecutionDld)"
+														oncomplete="PF('inExecutionDld').show();">
+														<i class="fa fa-comments-o" title="Attachments"
+															style="margin-left: 6px;" />
+														<span class="badge"><p:outputLabel
+																value="#{executionBean.downloadExecutionFiles(executions).size()}"
+																style="color:#F83207;font-weight:bold;" /></span>
+													</p:commandLink>
+												</div>
+											</div>
+											<p:separator />
+										</p:repeat>
+										<p:dialog header="Execution Conversations" width="850"
+											widgetVar="inExecutionDld" resizable="false"
+											draggable="false" responsive="true" modal="true"
+											hideEffect="scale">
+											<p:commandLink action="#{executionBean.myExecutionChart()}"
+												ajax="false" process="@this">
+												<i class="fa fa-print"> Print</i>
+											</p:commandLink>
+											<p:separator />
+											<div class="ui-g">
+												<div class="ui-g-5">
+													<h:outputText value="|Comments" style="font-weight: bold;" />
+												</div>
+												<div class="ui-g-2">
+													<h:outputText value="|By" style="font-weight: bold;" />
+												</div>
+												<div class="ui-g-2">
+													<h:outputText value="|Dates" style="font-weight: bold;" />
+												</div>
+												<div class="ui-g-3">
+													<h:outputText value="|Files" style="font-weight: bold;" />
+												</div>
+											</div>
+											<p:scrollPanel style="height:200px;">
+												<p:repeat var="executionReports"
+													value="#{executionBean.executionReports()}">
+													<div class="ui-g">
+														<div class="ui-g-5">#{executionReports.description}</div>
+														<div class="ui-g-2">#{executionBean.customNames(executionReports)}</div>
+														<div class="ui-g-2">#{executionBean.convertToTime(executionReports.commentDate)}</div>
+														<div class="ui-g-3">
+															<p:repeat
+																value="#{executionBean.resourcePerExecutionReport(executionReports)}"
+																var="trs">
+																<p:commandLink
+																	action="#{executionBean.startDownload(trs)}"
+																	ajax="false" process="@this">
+																	<i class="fa fa-download"
+																		style="text-decoration: underline;">
+																		#{trs.fileName}</i>
+																</p:commandLink>
+															</p:repeat>
+														</div>
+													</div>
+													<p:separator />
+												</p:repeat>
+											</p:scrollPanel>
+										</p:dialog>
+										<p:panel id="inExecutionPanel"
+											visible="#{executionBean.enableExecutionPanel}">
+											<p:growl showDetail="true" id="growlExecutionn" />
+											<div class="ui-g">
+												<div class="ui-g-12 ui-md-6 ui-lg-8">
+													<div class="ui-fluid">
+														<h:panelGroup styleClass="md-inputfield"
+															style="margin-top:15px;">
+															<p:inputTextarea
+																value="#{executionBean.executationReport.description}" />
+															<label>Your Comment <i class="fa fa-comment-o" />
+															</label>
+														</h:panelGroup>
+													</div>
+
+													<p:fileUpload
+														disabled="#{executionBean.disableFileUploader}"
+														fileUploadListener="#{executionBean.upload}"
+														mode="advanced" dragDropSupport="false" multiple="true"
+														update=":myTaskForm:mainTab:growlExecutionn"
+														style="width:100%" process="@this" />
+
+													<p:spacer />
+													<p:rating value="#{executionBean.selectedExecution.rate}"
+														disabled="#{executionBean.disableRating}" stars="10" />
+													<br />
+													<p:commandButton id="exeAprove"
+														disabled="#{executionBean.disableApprovalBtn}"
+														action="#{executionBean.executionApproval()}"
+														process="inExecutionPanel"
+														update=":myTaskForm:mainTab:inExecution " value="Approve"
+														icon="fa fa-check" styleClass="green-btn"
+														style="margin-right:10px;">
+														<p:confirm header="Confirmation" message="Are you sure?"
+															icon="ui-icon-warning" />
+													</p:commandButton>
+													<p:confirmDialog global="true" showEffect="fade"
+														hideEffect="fade" width="250">
+														<p:commandButton value="Yes" type="button"
+															styleClass="ui-confirmdialog-yes GreenButton"
+															icon="ui-icon-check" />
+														<p:commandButton value="No" type="button"
+															styleClass="ui-confirmdialog-no RedButton"
+															icon="ui-icon-close" />
+													</p:confirmDialog>
+													<p:commandButton id="exeRejection"
+														disabled="#{executionBean.disableRejectionBtn}"
+														action="#{executionBean.executionRejection()}"
+														process="inExecutionPanel"
+														update=":myTaskForm:mainTab:inExecution " value="Reject"
+														icon=" fa fa-remove" styleClass="red-btn">
+														<p:confirm header="Confirmation" message="Are you sure?"
+															icon="ui-icon-warning" />
+													</p:commandButton>
+													<p:confirmDialog global="true" showEffect="fade"
+														hideEffect="fade" width="250">
+														<p:commandButton value="Yes" type="button"
+															styleClass="ui-confirmdialog-yes GreenButton"
+															icon="ui-icon-check" />
+														<p:commandButton value="No" type="button"
+															styleClass="ui-confirmdialog-no RedButton"
+															icon="ui-icon-close" />
+													</p:confirmDialog>
+												</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-4">
+													<h2>Execution Description</h2>
+													<p:separator />
+													#{executionBean.selectedExecution.resolution.description}
+												</div>
+											</div>
+										</p:panel>
+									</p:outputPanel>
+								</p:tab>
+								<p:tab
+									title="My Executions (#{executionBean.executionAssignedToMe().size()})"
+									id="executionTab">
+									<p:outputPanel id="outExecution">
+										<div class="ui-g">
+											<div class="ui-g-12 ui-md-6 ui-lg-11"></div>
+											<div class="ui-g-12 ui-md-6 ui-lg-1">
+												<p:commandLink action="#{executionBean.myExecutionReport()}"
+													ajax="false" process="@this"
+													update=":myTaskForm:mainTab:outExecution">
+													<i class="fa fa-print"> print</i>
+												</p:commandLink>
+											</div>
+										</div>
+										<p:separator />
+										<div class="ui-g">
+											<div class="ui-g-12 ui-md-6 ui-lg-3">
+												<h:outputLabel value="|Name" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-1">
+												<h:outputLabel value="|Given" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-1">
+												<h:outputLabel value="|Start" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-1">
+												<h:outputLabel value="|End" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-2">
+												<h:outputLabel value="|Assigned By"
+													style="font-weight: bold;" />
+											</div>
+
+											<div class="ui-g-12 ui-md-6 ui-lg-2">
+												<h:outputLabel value="|Status" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-1">
+												<h:outputLabel value="|State" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-1">
+												<h:outputLabel value="|Action" style="font-weight: bold;" />
+											</div>
+										</div>
+										<p:separator />
+										<p:repeat var="executions"
+											value="#{executionBean.executionAssignedToMe()}">
+											<div class="ui-g">
+												<div class="ui-g-12 ui-md-6 ui-lg-3">#{executions.resolution.description}</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-1">#{meetingMinutes.customeDate(executions.givenDate)}</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-1">#{meetingMinutes.customeDate(executions.startDate)}</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-1">#{meetingMinutes.customeDate(executions.endDate)}</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-2">#{executions.assignedBy.firstName}
+													#{executions.assignedBy.lastName}</div>
+
+												<div class="ui-g-12 ui-md-6 ui-lg-2">#{executions.status}</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-1"
+													style="width: 30px;height: 30px;-webkit-border-radius: 25px;-moz-border-radius: 25px;border-radius: 25px;background: #{executionBean.coloringExecution(executions)};" />
+
+												<div class="ui-g-12 ui-md-6 ui-lg-1"
+													style="text-align: center">
+
+													<p:commandLink process="@this" style="margin-left:40px;"
+														action="#{executionBean.openMyExecution(executions)}"
+														update=":myTaskForm:mainTab:outExecution :myTaskForm:mainTab:executionPanel">
+														<i class="fa fa-folder-open" title="Open task" />
+													</p:commandLink>
+
+													<p:commandLink process="@this"
+														action="#{executionBean.getExecutionObject(executions)}"
+														update="@widgetVar(executionDld)"
+														oncomplete="PF('executionDld').show();">
+														<i class="fa fa-comments-o" title="Attachments"
+															style="margin-left: 6px;" />
+														<span class="badge"><p:outputLabel
+																value="#{executionBean.downloadExecutionFiles(executions).size()}"
+																style="color:#F83207;font-weight:bold;" /></span>
+													</p:commandLink>
+												</div>
+											</div>
+											<p:separator />
+										</p:repeat>
+										<p:dialog header="Report Conversations" width="800"
+											widgetVar="executionDld" resizable="false" draggable="false"
+											responsive="true" modal="true" hideEffect="scale">
+											<p:commandLink>
+												<i class="fa fa-print"> Print</i>
+											</p:commandLink>
+											<p:separator />
+											<div class="ui-g">
+												<div class="ui-g-5">
+													<h:outputText value="|Comments" style="font-weight: bold;" />
+												</div>
+												<div class="ui-g-2">
+													<h:outputText value="|By" style="font-weight: bold;" />
+												</div>
+												<div class="ui-g-2">
+													<h:outputText value="|Dates" style="font-weight: bold;" />
+												</div>
+												<div class="ui-g-3">
+													<h:outputText value="|Files" style="font-weight: bold;" />
+												</div>
+											</div>
+											<p:scrollPanel style="height:200px;">
+												<p:repeat var="executionReports"
+													value="#{executionBean.executionReports()}">
+													<div class="ui-g">
+														<div class="ui-g-5">#{executionReports.description}</div>
+														<div class="ui-g-2">#{executionBean.customNames(executionReports)}</div>
+														<div class="ui-g-2">#{executionBean.convertToTime(executionReports.commentDate)}</div>
+														<div class="ui-g-3">
+															<p:repeat
+																value="#{executionBean.resourcePerExecutionReport(executionReports)}"
+																var="trs">
+																<p:commandLink
+																	action="#{executionBean.startDownload(trs)}"
+																	ajax="false" process="@this">
+																	<i class="fa fa-download"> #{trs.fileName}</i>
+																</p:commandLink>
+																<p:separator />
+															</p:repeat>
+														</div>
+													</div>
+													<p:separator />
+												</p:repeat>
+											</p:scrollPanel>
+										</p:dialog>
+										<p:panel id="executionPanel" header="Process Execution"
+											closable="true"
+											visible="#{executionBean.enableExecutionPanel}">
+
+											<p:growl showDetail="true" id="growlExecution" />
+											<div class="ui-g">
+												<div class="ui-g-12 ui-md-6 ui-lg-8">
+													<div class="ui-fluid">
+														<h:panelGroup styleClass="md-inputfield"
+															style="margin-top:10px;">
+															<p:inputTextarea
+																value="#{executionBean.executationReport.description}" />
+															<label>Your Comment <i class="fa fa-comment-o" />
+															</label>
+														</h:panelGroup>
+													</div>
+													<p:fileUpload
+														disabled="#{executionBean.disableFileUploader}"
+														fileUploadListener="#{executionBean.upload}"
+														mode="advanced" dragDropSupport="false" multiple="true"
+														update=":myTaskForm:mainTab:growlExecution"
+														style="width:100%" process="@this" />
+													<p:rating value="#{executionBean.selectedMyexecution.rate}"
+														readonly="true" stars="10" style="margin-top:10px;" />
+
+													<p:commandButton
+														action="#{executionBean.executionReporting()}"
+														disabled="#{executionBean.disableMyExecutionSubmitBtn}"
+														value="Submit" icon="fa fa-file-text"
+														styleClass="green-btn" process="executionPanel"
+														update=":myTaskForm:mainTab:outExecution ">
+														<p:confirm header="Confirmation" message="Are you sure?"
+															icon="ui-icon-warning" />
+													</p:commandButton>
+													<p:confirmDialog global="true" showEffect="fade"
+														hideEffect="fade" width="250">
+														<p:commandButton value="Yes" type="button"
+															styleClass="ui-confirmdialog-yes GreenButton"
+															icon="ui-icon-check" />
+														<p:commandButton value="No" type="button"
+															styleClass="ui-confirmdialog-no RedButton"
+															icon="ui-icon-close" />
+													</p:confirmDialog>
+
+												</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-4">
+													<h:outputLabel
+														value="Weight:#{executionBean.selectedMyexecution.weight}/10"
+														style="color:#ff6600; font-weight:bold;" />
+													<h2>Execution Description</h2>
+
+													#{executionBean.selectedMyexecution.resolution.description}
+													<p:separator />
+													<p:fieldset legend="Attachments">
+														<p:repeat var="ea"
+															value="#{executionBean.executionAttachements()}">
+															<p:commandLink ajax="false"
+																action="#{executionBean.startDownload(ea)}"
+																process="@this"
+																update=":myTaskForm:mainTab:outExecution ">
+																<i class="fa fa-download"> #{ea.fileName}</i>
+															</p:commandLink>
+														</p:repeat>
+													</p:fieldset>
+												</div>
+											</div>
+										</p:panel>
+									</p:outputPanel>
+								</p:tab>
+							</p:tabView>
+						</p:panel>
+					</div>
+				</div>
+			</h:form>
+		</div>
+	</ui:define>
+</ui:composition>

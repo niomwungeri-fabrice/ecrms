@@ -1,0 +1,145 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="content">
+		<style type="text/css">
+.cars-datalist .text-column p:last-child {
+	color: #757575;
+}
+
+.cars-datalist .car-item i, .cars-datalist .car-item .car-details {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.cars-datalist .car-item button {
+	float: right;
+}
+
+.cars-datalist ul {
+	margin: 0;
+	padding: 0;
+}
+
+.ui-car-display td:last-child {
+	font-weight: 700;
+}
+
+@media ( max-width :640px) {
+	.cars-datalist .text-column {
+		text-align: center;
+	}
+}
+</style>
+		<script type="text/javascript">
+function start() {
+    PF('statusDialog').show();
+}
+ 
+function stop() {
+    PF('statusDialog').hide();
+}
+</script>
+		<p:breadCrumb style="margin-bottom:10px;">
+			<p:menuitem value="Dashboard" url="dashboard.xhtml" />
+			<p:menuitem value="Meetings" url="meetings.xhtml" />
+			<p:menuitem value="Meeting details" url="meetingDetails.xhtml" />
+			<p:menuitem value="Attendance" url="attendance.xhtml" />
+		</p:breadCrumb>
+		<div class="card">
+			<div class="ui-g">
+				<div class="ui-g-12">
+					<h:form id="attendanceForm">
+						<p:growl id="growl" />
+						<p:panel id="attendancePanel" header="Attendance">
+							<center>
+								<h1 style="font-weight: bold; color: maroon;">ATTENDANCE</h1>
+								<h2 style="font-weight: bold;">#{attendance.selectedMeeting.title}</h2>
+							</center>
+							<p:separator />
+							<div class="ui-g">
+
+								<div class="ui-g-12 ui-md-6 ui-lg-3">
+									<h:outputText value="|Date:" style="font-weight: bold;" />
+									#{createMeeting.customeDate(attendance.selectedMeeting.startTime)}
+									- #{attendance.customeDate(attendance.selectedMeeting.endTime)}
+									#{createMeeting.meetingYear(attendance.selectedMeeting.startTime)}
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-4">
+									<h:outputText value="|Location:" style="font-weight: bold;" />
+									#{attendance.selectedMeeting.location}
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-5">
+									<h:outputText value="|Meeting called by:"
+										style="font-weight: bold;" />
+									#{attendance.organizer.employee.firstName}
+									#{attendance.organizer.employee.lastName}(#{attendance.organizer.employee.position})
+								</div>
+							</div>
+							<p:separator />
+							<div class="ui-g">
+								<div class="ui-g-12 ui-md-6 ui-lg-3">
+									<p:outputLabel value="Names" style="font-weight: bold;" />
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-4">
+									<p:outputLabel value="Emails" style="font-weight: bold;" />
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-1">
+									<p:outputLabel value="Attended" style="font-weight: bold;" />
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-1">
+									<p:outputLabel value="Confirmed" style="font-weight: bold;" />
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-3">
+									<p:outputLabel value="Reason" style="font-weight: bold;" />
+								</div>
+							</div>
+							<p:separator />
+							<div class="ui-g">
+								<div class="ui-g-12 ui-md-6 ui-lg-1">
+									<p:commandLink process="@this" ajax="false"
+										disabled="#{loginBean.disableScheduling}"
+										action="#{attendance.download()}">
+										<i class="fa fa-print"> Print</i>
+									</p:commandLink>
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-6" />
+								<div class="ui-g-12 ui-md-6 ui-lg-1">
+									<p:selectBooleanCheckbox value="#{attendance.selectAll}"
+										disabled="#{loginBean.disableScheduling}">
+										<p:ajax update=":attendanceForm:attendancePanel"
+											listener="#{attendance.allAttended}" />
+									</p:selectBooleanCheckbox>
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-5" />
+							</div>
+							<p:separator />
+							<div class="ui-g">
+								<p:repeat value="#{attendance.participants()}" var="invited">
+									<div class="ui-g-12 ui-md-6 ui-lg-3">#{attendance.getInviteeDetails(invited)}</div>
+									<div class="ui-g-12 ui-md-6 ui-lg-4">#{attendance.getInviteeEmail(invited)}</div>
+									<div class="ui-g-12 ui-md-6 ui-lg-1">
+										<p:selectBooleanCheckbox value="#{invited.attended}"
+											disabled="#{loginBean.disableScheduling}">
+											<p:ajax update=":attendanceForm:attendancePanel"
+												listener="#{attendance.oneAttended(invited)}" />
+										</p:selectBooleanCheckbox>
+									</div>
+									<div class="ui-g-12 ui-md-6 ui-lg-1">
+										<p:selectBooleanButton disabled="true"
+											value="#{invited.confirmed}" onLabel="Yes" offLabel="No"
+											onIcon="ui-icon-check" offIcon="ui-icon-close" />
+									</div>
+									<div class="ui-g-12 ui-md-6 ui-lg-3">#{invited.reason}</div>
+								</p:repeat>
+							</div>
+						</p:panel>
+					</h:form>
+				</div>
+			</div>
+		</div>
+	</ui:define>
+</ui:composition>

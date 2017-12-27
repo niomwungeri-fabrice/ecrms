@@ -1,0 +1,271 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="content">
+		<style type="text/css">
+.main-content {
+	padding: 0;
+}
+
+.meeting-datalist .text-column p:last-child {
+	color: #757575;
+}
+
+.meeting-datalist .meeting-item i, .meeting-datalist .meeting-item .meeting-details
+	{
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.meeting-datalist .meeting-item button {
+	float: right;
+}
+
+.meeting-datalist ul {
+	margin: 0;
+	padding: 0;
+}
+
+.ui-meeting-display td:last-child {
+	font-weight: 700;
+}
+
+@media ( max-width :640px) {
+	.meeting-datalist .text-column {
+		text-align: center;
+	}
+}
+</style>
+		<div class="ui-g">
+			<div class="ui-g-12">
+				<p:breadCrumb style="margin-bottom:10px;">
+					<p:menuitem value="Dashboard" url="dashboard.xhtml" />
+					<p:menuitem value="Meetings" url="meetings.xhtml" />
+					<p:menuitem value="Meeting details" url="meetingDetails.xhtml" />
+					<p:menuitem value="Meeting Cost" url="meetingcost.xhtml" />
+				</p:breadCrumb>
+				<div class="card">
+					<h:form id="costForm">
+
+						<p:panel header="Meeting Cost" id="meetingCost" 
+							>
+							<p:growl id="growl" showDetail="true" />
+							<center>
+								<h1 style="font-weight: bold; color: maroon;">MEETING COST</h1>
+								<h2 style="font-weight: bold;">#{meetingCostBean.selectedMeeting.title}</h2>
+							</center>
+							<p:separator />
+							<div class="ui-g">
+								<div class="ui-g-12 ui-md-6 ui-lg-3">
+									<h:outputText value="|Date:" style="font-weight: bold;" />
+									#{createMeeting.customeDate(meetingCostBean.selectedMeeting.startTime)}
+									-
+									#{createMeeting.customeDate(meetingCostBean.selectedMeeting.endTime)}
+									#{createMeeting.meetingYear(meetingCostBean.selectedMeeting.startTime)}
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-4">
+									<h:outputText value="|Location:" style="font-weight: bold;" />
+									#{meetingCostBean.selectedMeeting.location}
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-5">
+									<h:outputText value="|Meeting called by:"
+										style="font-weight: bold;" />
+									#{meetingCostBean.organizer.employee.firstName}
+									#{meetingCostBean.organizer.employee.lastName}
+								</div>
+							</div>
+							<p:separator />
+
+							<div class="ui-g">
+
+								<div class="ui-g-12 ui-md-6 ui-lg-1" style="text-align: center;">
+									<p:commandButton id="addMM" icon="fa fa-plus" title="Add Item"
+										disabled="#{loginBean.disableScheduling}"
+										onclick="PF('dlgMCost').show();" />
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-10" />
+								<div class="ui-g-12 ui-md-6 ui-lg-1">
+									<p:commandLink process="@this" update="meetingCost"
+										ajax="false" action="#{meetingCostBean.meetingCostReport()}">
+										<i class="fa fa-print"> print</i>
+									</p:commandLink>
+								</div>
+								<p:dialog header="Meeting Cost" widgetVar="dlgMCost"
+									id="dlgMCostId" resizable="false" width="400" modal="true"
+									draggable="false" responsive="true" hideEffect="scale">
+									<div class="ui-fluid">
+										<div class="ui-g form-group" style="margin-bottom: 16px;">
+											<div class="ui-g-12">
+												<h:panelGroup styleClass="md-inputfield">
+													<p:inputText
+														value="#{meetingCostBean.expenditureItem.itemName}" />
+													<label>Item</label>
+												</h:panelGroup>
+											</div>
+											<div class="ui-g-12">
+												<h:panelGroup styleClass="md-inputfield">
+													<p:inputText
+														value="#{meetingCostBean.expenditureItem.quantity}" />
+													<label>Quantity</label>
+												</h:panelGroup>
+											</div>
+											<div class="ui-g-12">
+												<h:panelGroup styleClass="md-inputfield">
+													<p:inputText
+														value="#{meetingCostBean.expenditureItem.unitCost}" />
+													<label>Unit Cost</label>
+												</h:panelGroup>
+											</div>
+										</div>
+									</div>
+									<p:separator />
+									<p:commandButton icon="fa fa-plus"
+										onclick="PF('dlgMCost').hide();"
+										style="float:right;margin-left:10px;" process="dlgMCostId"
+										action="#{meetingCostBean.recordCost()}" update="meetingCost">
+										<p:confirm header="Confirmation" message="Are you sure?"
+											icon="ui-icon-warning" />
+									</p:commandButton>
+									<p:confirmDialog global="true" showEffect="fade"
+										hideEffect="fade" width="250">
+										<p:commandButton value="Yes" type="button"
+											styleClass="ui-confirmdialog-yes GreenButton"
+											icon="ui-icon-check" />
+										<p:commandButton value="No" type="button"
+											styleClass="ui-confirmdialog-no RedButton"
+											icon="ui-icon-close" />
+									</p:confirmDialog>
+									<p:commandButton icon="fa fa-remove"
+										onclick="PF('dlgMCost').hide();"
+										style="float:right;background-color:red;" />
+								</p:dialog>
+							</div>
+							<p:separator />
+							<div class="ui-g">
+								<div class="ui-g-12 ui-md-6 ui-lg-3">
+									<h:outputText value="|Name" style="font-weight: bold;" />
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-3">
+									<h:outputText value="|Unit Cost(Rwf)"
+										style="font-weight: bold;" />
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-2">
+									<h:outputText value="|Quantity" style="font-weight: bold;" />
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-3">
+									<h:outputText value="|Total Cost(Rwf)"
+										style="font-weight: bold;" />
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-1">
+									<h:outputText value="|Action" style="font-weight: bold; " />
+								</div>
+							</div>
+							<p:separator />
+							<p:repeat var="mCost" value="#{meetingCostBean.costByMeeting()}">
+								<div class="ui-g">
+									<div class="ui-g-12 ui-md-6 ui-lg-3"><h:outputText value="#{mCost.itemName}" /></div>
+									<div class="ui-g-12 ui-md-6 ui-lg-3">#{mCost.unitCost}</div>
+									<div class="ui-g-12 ui-md-6 ui-lg-2">#{mCost.quantity}</div>
+									<div class="ui-g-12 ui-md-6 ui-lg-3">#{mCost.totalCost}</div>
+									<div class="ui-g-12 ui-md-6 ui-lg-1">
+										<p:commandLink oncomplete="PF('dlgMCostEdit').show();"
+											disabled="#{loginBean.disableScheduling}"
+											action="#{meetingCostBean.getExpenditure(mCost)}"
+											process="@this" update=":costForm:meetingCost">
+											<i class="fa fa-pencil" />
+										</p:commandLink>
+										<p:dialog header="Meeting Cost" widgetVar="dlgMCostEdit"
+											id="dlgMCostIdEdit" resizable="false" width="400"
+											modal="true" draggable="false" responsive="true"
+											hideEffect="scale">
+											<div class="ui-fluid">
+												<div class="ui-g form-group" style="margin-bottom: 16px;">
+													<div class="ui-g-12">
+														<h:panelGroup styleClass="md-inputfield">
+															<p:inputText
+																value="#{meetingCostBean.expenditureItem.itemName}" />
+															<label>Item</label>
+														</h:panelGroup>
+													</div>
+													<div class="ui-g-12">
+														<h:panelGroup styleClass="md-inputfield">
+															<p:inputText
+																value="#{meetingCostBean.expenditureItem.quantity}" />
+															<label>Quantity</label>
+														</h:panelGroup>
+													</div>
+													<div class="ui-g-12">
+														<h:panelGroup styleClass="md-inputfield">
+															<p:inputText
+																value="#{meetingCostBean.expenditureItem.unitCost}" />
+															<label>Unit Cost</label>
+														</h:panelGroup>
+													</div>
+												</div>
+											</div>
+											<p:separator />
+											<p:commandButton icon="fa fa-save"
+												onclick="PF('dlgMCostEdit').hide();"
+												style="float:right;margin-left:10px;"
+												process="dlgMCostIdEdit"
+												action="#{meetingCostBean.updateItems(meetingCostBean.expenditureItem)}"
+												update=":costForm:meetingCost">
+												<p:confirm header="Confirmation" message="Are you sure?"
+													icon="ui-icon-warning" />
+											</p:commandButton>
+											<p:confirmDialog global="true" showEffect="fade"
+												hideEffect="fade" width="250">
+												<p:commandButton value="Yes" type="button"
+													styleClass="ui-confirmdialog-yes GreenButton"
+													icon="ui-icon-check" />
+												<p:commandButton value="No" type="button"
+													styleClass="ui-confirmdialog-no RedButton"
+													icon="ui-icon-close" />
+											</p:confirmDialog>
+											<p:commandButton icon="fa fa-remove"
+												onclick="PF('dlgMCost').hide();"
+												style="float:right;background-color:red;" />
+										</p:dialog>
+
+
+										<p:commandLink action="#{meetingCostBean.deleteItem(mCost)}"
+											disabled="#{loginBean.disableScheduling}"
+											update=":costForm:meetingCost" process="@this"
+											style="color:red;margin-left:8px;">
+											<i class="fa fa-trash" />
+											<p:confirm header="Confirmation" message="Are you sure?"
+												icon="ui-icon-warning" />
+										</p:commandLink>
+										<p:confirmDialog global="true" showEffect="fade"
+											hideEffect="fade" width="250">
+											<p:commandButton value="Yes" type="button"
+												styleClass="ui-confirmdialog-yes GreenButton"
+												icon="ui-icon-check" />
+											<p:commandButton value="No" type="button"
+												styleClass="ui-confirmdialog-no RedButton"
+												icon="ui-icon-close" />
+										</p:confirmDialog>
+									</div>
+								</div>
+								<p:separator />
+							</p:repeat>
+							<div class="ui-g">
+								<div class="ui-g-12 ui-md-6 ui-lg-8" />
+								<div class="ui-g-12 ui-md-6 ui-lg-3">
+									<h:outputText value="|Grand Total" style="font-weight: bold;" />
+									<br /> #{meetingCostBean.calculateGrandTotal()} Rwf
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-1" />
+							</div>
+						</p:panel>
+					</h:form>
+				</div>
+			</div>
+		</div>
+
+	</ui:define>
+
+</ui:composition>

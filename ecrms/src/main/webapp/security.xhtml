@@ -1,0 +1,104 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pu="http://primefaces.org/ultima"
+	template="/WEB-INF/template.xhtml">
+
+	<ui:define name="content">
+		<script type="text/javascript">
+function start() {
+    PF('statusDialog').show();
+}
+ 
+function stop() {
+    PF('statusDialog').hide();
+}
+</script>
+		<p:breadCrumb style="margin-bottom:10px;">
+				<p:menuitem value="Dashboard" url="dashboard.xhtml" />
+				<p:menuitem value="Security" url="security.xhtml"/>
+			</p:breadCrumb>
+		<div class="card">
+			<h:form id="form">
+				<p:growl id="msgs" showDetail="true" />
+				<p:dataTable var="u" value="#{authorizationBean.allUser()}"
+					id="userTable" editable="true" tableStyle="width: auto;"
+					paginator="true" rows="10" style="margin-bottom:20px">
+					<p:ajax event="rowEdit" listener="#{authorizationBean.onRowEdit}"
+						update=":form:msgs :form:userTable" process="userTable" />
+
+					<p:column headerText="First name" sortBy="#{u.employee.firstName}">
+						<h:outputText value="#{u.employee.firstName}" />
+					</p:column>.
+					<p:column headerText="Last name" sortBy="#{u.employee.lastName}">
+						<h:outputText value="#{u.employee.lastName}" />
+					</p:column>
+					<p:column headerText="Email">
+						<h:outputText value="#{u.employee.email}" />
+					</p:column>
+					<p:column headerText="Gender">
+						<h:outputText value="#{u.employee.gender}" />
+					</p:column>
+					<p:column headerText="Position" sortBy="#{u.employee.position}">
+						<h:outputText value="#{u.employee.position}" />
+					</p:column>
+
+					<p:column headerText="Active">
+						<center>
+							<p:inputSwitch value="#{u.state}">
+								<p:ajax listener="#{authorizationBean.activateUser(u)}"
+									update=":form:msgs " />
+							</p:inputSwitch>
+						</center>
+					</p:column>
+
+					<p:column headerText="Access">
+						<p:cellEditor>
+							<f:facet name="output">
+								<h:outputText value="#{u.roles.name}" />
+							</f:facet>
+							<f:facet name="input">
+								<p:selectOneMenu value="#{authorizationBean.roleId}">
+									<f:selectItems value="#{authorizationBean.allRoles}" var="role"
+										itemLabel="#{role.name}" itemValue="#{role.id}" />
+								</p:selectOneMenu>
+							</f:facet>
+						</p:cellEditor>
+					</p:column>
+					<p:column headerText="Password">
+						<center>
+							<p:commandButton value="Reset"
+								action="#{authorizationBean.passWordReset(u)}" process="@this"
+								update=":form:msgs" />
+						</center>
+					</p:column>
+					<p:column style="width:32px" headerText="Edit">
+						<p:rowEditor />
+					</p:column>
+					<p:column style="width:32px" headerText="Del">
+						<center>
+							<p:commandLink update=":form:msgs :form:userTable" style="color:red;"
+								process="@this"
+								action="#{authorizationBean.deleteUserEmployee(u)}">
+								<p:confirm header="Confirmation"
+									message="Are you sure you want to delete ?"
+									icon="ui-icon-warning" />
+								<i class="fa fa-user-times" />
+							</p:commandLink>
+							<p:confirmDialog global="true" showEffect="fade"
+								hideEffect="fade" width="250">
+								<p:commandButton value="Yes"
+									styleClass="ui-confirmdialog-yes GreenButton"
+									icon="ui-icon-check" />
+								<p:commandButton value="No"
+									styleClass="ui-confirmdialog-no RedButton" icon="ui-icon-close" />
+							</p:confirmDialog>
+						</center>
+					</p:column>
+				</p:dataTable>
+			</h:form>
+		</div>
+	</ui:define>
+</ui:composition>

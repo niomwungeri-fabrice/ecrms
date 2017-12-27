@@ -1,0 +1,79 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="content">
+		<div class="ui-g">
+			<div class="ui-g-12">
+				<div class="card">
+					<h:form enctype="multipart/form-data">
+						<p:panel header="Personel Information" id="pInfoId">
+							<p:growl showDetail="true" />
+							<div class="ui-g">
+								<div class="ui-g-12">
+									<div class="ui-fluid">
+										<div class="ui-g form-group" style="margin-bottom: 16px;">
+											<div class="ui-g-12">
+												<h:panelGroup styleClass="md-inputfield">
+													<p:inputText disabled="true"
+														value="#{loginBean.loggedInUser.employee.firstName}" />
+													<label>First name</label>
+												</h:panelGroup>
+											</div>
+											<div class="ui-g-12">
+												<h:panelGroup styleClass="md-inputfield">
+													<p:inputText disabled="true"
+														value="#{loginBean.loggedInUser.employee.lastName}" />
+													<label>Last name</label>
+												</h:panelGroup>
+											</div>
+											<div class="ui-g-12">
+												<h:panelGroup styleClass="md-inputfield">
+													<p:inputText disabled="true"
+														value="#{loginBean.loggedInUser.username}" />
+													<label>Email</label>
+												</h:panelGroup>
+											</div>
+											<div class="ui-g-12">
+												<h:panelGroup styleClass="md-inputfield">
+													<p:inputText disabled="true"
+														value="#{loginBean.loggedInUser.employee.position}" />
+													<label>Position</label>
+												</h:panelGroup>
+											</div>
+											<div class="ui-g-12">
+												<h:panelGroup styleClass="md-inputfield">
+													<p:password required="true" label="Password"
+														feedback="true" inline="true"
+														value="#{loginBean.loggedInUser.password}" id="passwrd"
+														match="confirm_passwrd" />
+													<label>Password</label>
+												</h:panelGroup>
+											</div>
+											<div class="ui-g-12">
+												<h:panelGroup styleClass="md-inputfield">
+													<p:password required="true" label="Confirm Password"
+														value="#{loginBean.loggedInUser.password}"
+														id="confirm_passwrd" />
+													<label>Confirm - Password</label>
+												</h:panelGroup>
+											</div>
+										</div>
+									</div>
+									<p:commandButton style="float:right;" value="Update"
+										icon="fa fa-refresh" action="#{loginBean.updateProfile()}"
+										process="pInfoId" update="pInfoId" />
+								</div>
+								
+							</div>
+						</p:panel>
+					</h:form>
+				</div>
+			</div>
+		</div>
+
+	</ui:define>
+
+</ui:composition>

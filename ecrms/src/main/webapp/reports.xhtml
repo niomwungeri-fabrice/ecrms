@@ -1,0 +1,160 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="content">
+		<p:breadCrumb style="margin-bottom:10px;">
+			<p:menuitem value="Dashboard" url="dashboard.xhtml" />
+			<p:menuitem value="Repots" url="reports.xhtml" />
+		</p:breadCrumb>
+		<h:form id="reportForm">
+			<div class="card">
+				<div class="ui-g">
+					<div class="ui-g-12">
+
+						<p:dataTable value="#{reportBean.meetings()}" var="m"
+							style="margin-bottom:10px;" id="meetingTable"
+							widgetVar="widgetTable"
+							filteredValue="#{meetingsBean.filteredMeetings}" rows="10"
+							paginator="true">
+
+							<f:facet name="header">
+								<p:outputPanel style="text-align:right;">
+									<h:outputText value="Search" />
+									<p:inputText id="globalFilter"
+										onkeyup="PF('widgetTable').filter()" style="width:180px" />
+								</p:outputPanel>
+							</f:facet>
+
+							<p:column headerText="Title" filterMatchMode="contains"
+								filterBy="#{m.title}" filterStyle="display:none">
+									#{m.title}
+									</p:column>
+							<p:column headerText="Purpose" filterMatchMode="contains"
+								filterBy="#{m.title}" filterStyle="display:none">
+									#{m.location}
+									</p:column>
+							<p:column headerText="Location" filterMatchMode="contains"
+								filterBy="#{m.title}" filterStyle="display:none">
+									#{m.purpose}
+									</p:column>
+							<p:column headerText="Start date" filterMatchMode="contains"
+								sortBy="#{m.startTime}" style="width: 140px;"
+								filterBy="#{m.title}" filterStyle="display:none">
+									#{meetingsBean.convertToTime(m.startTime)}
+									</p:column>
+
+							<p:column headerText="End date" filterMatchMode="contains"
+								style="width: 140px;" filterBy="#{m.title}"
+								filterStyle="display:none">
+									#{meetingsBean.convertToTime(m.endTime)}
+									</p:column>
+
+						</p:dataTable>
+
+						<p:commandLink>
+							<i class="fa fa-print"> Print</i>
+						</p:commandLink>
+						<p:panel header="Generated Reports Meetings and Resolutins"
+							id="panelReport" style="margin-top:5px;">
+							<p:repeat var="selectedMeeting" value="#{reportBean.meetings()}">
+								<div class="ui-g">
+									<div class="ui-g-3" style="background-color: #e0e0d1;">
+										<p:outputLabel value="MEETING NAME:" style="font-weight:bold;" />
+									</div>
+									<div class="ui-g-9">|#{selectedMeeting.title}</div>
+								</div>
+								<p:separator />
+								<div class="ui-g">
+									<div class="ui-g-3" style="background-color: #e0e0d1;">
+										<p:outputLabel value="DATE OF MEETING:"
+											style="font-weight:bold;" />
+									</div>
+									<div class="ui-g-3">|#{meetingReview.convertToTimeReport(selectedMeeting.startTime)}</div>
+									<div class="ui-g-3" style="background-color: #e0e0d1;">
+										<p:outputLabel value="TIME:" style="font-weight:bold;" />
+									</div>
+									<div class="ui-g-3">|#{meetingReview.meetingTime(selectedMeeting.startTime)}</div>
+								</div>
+								<p:separator />
+								<div class="ui-g">
+									<div class="ui-g-3" style="background-color: #e0e0d1;">
+										<p:outputLabel value="PREPARED BY:" style="font-weight:bold;" />
+									</div>
+									<div class="ui-g-3">|</div>
+									<div class="ui-g-3" style="background-color: #e0e0d1;">
+										<p:outputLabel value="LOCATION:" style="font-weight:bold;" />
+									</div>
+									<div class="ui-g-3">|#{selectedMeeting.location}</div>
+								</div>
+								<p:separator />
+								<div class="ui-g" style="margin-top: 5px;">
+									<div class="ui-g-3" style="background-color: #b3f0ff">
+										<p:outputLabel value="TOPIC" style="font-weight:bold;" />
+									</div>
+									<div class="ui-g-3" style="background-color: #b3f0ff">
+										<p:outputLabel value="|Resolution" style="font-weight:bold;" />
+									</div>
+									<div class="ui-g-2" style="background-color: #b3f0ff">
+										<p:outputLabel value="|Reporting to" style="font-weight:bold;" />
+									</div>
+									<div class="ui-g-2" style="background-color: #b3f0ff">
+										<p:outputLabel value="|Assigned to" style="font-weight:bold;" />
+									</div>
+
+									<div class="ui-g-2" style="background-color: #b3f0ff">
+										<p:outputLabel value="|Status" style="font-weight:bold;" />
+									</div>
+								</div>
+								<p:separator />
+
+								<p:repeat var="topics"
+									value="#{reportBean.tbyMeeting(selectedMeeting)}">
+									<div class="ui-g" style="margin-top: 5px;">
+										<div class="ui-g-3">
+											<p:outputLabel value="#{topics.name}"
+												style="font-weight:bold;" />
+										</div>
+										<div class="ui-g-8">
+											<p:repeat var="res"
+												value="#{reportBean.getResoTasks(topics)}" type="ordered">
+												<div class="ui-g-3">
+													<h:outputLabel value="#{res.resolution.description}" />
+												</div>
+												<div class="ui-g-2">
+													<h:outputLabel value="#{res.assignedBy.firstName}" />
+												</div>
+												<div class="ui-g-2">
+													<h:outputLabel value="#{res.assignedTo.firstName}" />
+												</div>
+												<div class="ui-g-2">
+													<h:outputLabel value="#{res.status}" />
+												</div>
+											</p:repeat>
+										</div>
+									</div>
+									<p:separator />
+								</p:repeat>
+								<p:panelGrid columns="5" layout="grid">
+									<h:outputText value="Content" />
+									<h:outputText value="Content" />
+									<h:outputText value="Content" />
+
+									<h:outputText value="Content" />
+									<h:outputText value="Content" />
+									<h:outputText value="Content" />
+
+									<h:outputText value="Content" />
+									<h:outputText value="Content" />
+									<h:outputText value="Content" />
+								</p:panelGrid>
+							</p:repeat>
+						</p:panel>
+					</div>
+				</div>
+			</div>
+		</h:form>
+	</ui:define>
+</ui:composition>

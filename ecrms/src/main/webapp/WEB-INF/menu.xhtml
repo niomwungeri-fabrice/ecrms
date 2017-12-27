@@ -1,0 +1,45 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pu="http://primefaces.org/ultima">
+
+	<h:form id="menuform">
+		<div class="layout-menu #{guestPreferences.menuClass}">
+			<div class="nano">
+				<div class="nano-content menu-scroll-content">
+					<ui:fragment
+						rendered="#{guestPreferences.profileMode == 'inline' and guestPreferences.menuLayout != 'menu-layout-static menu-layout-horizontal'}">
+						<div class="profile">
+							<p:graphicImage
+								style="position:center;height: 60px; border-radius: 50%;"
+								styleClass="img-circle"
+								url="/resources/ultima-layout/images/my-pro-pic.jpg" />
+							<a id="profile-options" href="#"> <span class="profile-name">#{loginBean.user.employee.firstName}
+									#{loginBean.user.employee.lastName}</span> <i class="material-icons">&#xE313;</i>
+							</a>
+						</div>
+
+						<ul id="profile-menu" class="ultima-menu">
+							<li role="menuitem"><a href="#{loginBean.logout()}"
+								class="ripplelink"> <i class="material-icons">&#xE8AC;</i> <span>Logout</span>
+							</a></li>
+						</ul>
+					</ui:fragment>
+
+					<pu:menu widgetVar="me">
+						<p:menuitem id="um_dashboard" value="Dashboard" icon="&#xE871;"
+							outcome="/meetingdashboard" />
+						
+						<p:menuitem id="um_utils" value="Settings" icon="&#xE869;"
+							disabled="#{loginBean.disableSettings}" outcome="/settings" />
+						
+						<p:menuitem id="um_doc" value="Security" icon="&#xE8E8;"
+							disabled="#{loginBean.disableSecurity}" outcome="/security" />
+					</pu:menu>
+				</div>
+			</div>
+		</div>
+	</h:form>
+</ui:composition>

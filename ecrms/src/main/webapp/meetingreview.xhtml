@@ -1,0 +1,263 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="content">
+		<style type="text/css">
+.main-content {
+	padding: 0;
+}
+
+.meeting-datalist .text-column p:last-child {
+	color: #757575;
+}
+
+.meeting-datalist .meeting-item i, .meeting-datalist .meeting-item .meeting-details
+	{
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.meeting-datalist .meeting-item button {
+	float: right;
+}
+
+.meeting-datalist ul {
+	margin: 0;
+	padding: 0;
+}
+
+.ui-meeting-display td:last-child {
+	font-weight: 700;
+}
+
+@media ( max-width :640px) {
+	.meeting-datalist .text-column {
+		text-align: center;
+	}
+}
+</style>
+		<p:breadCrumb style="margin-bottom:10px;">
+			<p:menuitem value="Dashboard" url="dashboard.xhtml" />
+			<p:menuitem value="Meetings" url="meetings.xhtml" />
+			<p:menuitem value="Meeting details" url="meetingDetails.xhtml" />
+			<p:menuitem value="Minutes" url="meetingreview.xhtml" />
+		</p:breadCrumb>
+		<div class="card">
+			<h:form id="myTaskForm">
+				<div class="ui-g">
+					<p:growl id="growl" />
+					<div class="ui-g-12 ui-md-6 ui-lg-9" />
+					<div class="ui-g-12 ui-md-6 ui-lg-3" style="text-align: center;">
+						<p:commandLink onclick="PF('dlg').show()">
+							<i class="fa fa-share-alt"> share</i>
+						</p:commandLink>
+						<p:dialog header="Share Meeting Minutes" widgetVar="dlg"
+							modal="true" width="500" draggable="false" responsive="true"
+							hideEffect="scale">
+							<p:textEditor id="tEditor">
+								<p:focus context="tEditor" />
+								<f:facet name="toolbar">
+									<span class="ql-formats">
+										<button class="ql-bold"></button>
+										<button class="ql-italic"></button>
+										<button class="ql-underline"></button>
+										<button class="ql-strike"></button>
+									</span>
+									<span class="ql-formats">
+										<button class="ql-font"></button>
+										<button class="ql-font"></button>
+									</span>
+								</f:facet>
+							</p:textEditor>
+							<p:fileUpload mode="advanced"
+								style="margin-top:10px;margin-bottom:10px;" />
+							<p:separator />
+							<p:commandButton onclick="PF('dlg').hide()" style="float:right;"
+								icon="fa fa-send" />
+						</p:dialog>
+						<p:commandLink process="@this" style="margin-left:6px;">
+							<i class="fa fa-print"> print</i>
+							<p:printer target="meetingReviewPanel" />
+						</p:commandLink>
+					</div>
+				</div>
+				<p:panel id="meetingReviewPanel">
+					<h:graphicImage width="100%"
+						value="/resources/ultima-layout/images/logo-OPM.png" />
+					<p:separator />
+					<div class="ui-g">
+						<div class="ui-g-3" style="background-color: #e0e0d1;">
+							<p:outputLabel value="MEETING NAME:" style="font-weight:bold;" />
+						</div>
+						<div class="ui-g-9">|#{meetingReview.selectedMeeting.title}</div>
+					</div>
+					<p:separator />
+					<div class="ui-g">
+						<div class="ui-g-3" style="background-color: #e0e0d1;">
+							<p:outputLabel value="DATE OF MEETING:" style="font-weight:bold;" />
+						</div>
+						<div class="ui-g-3">|#{meetingReview.convertToTimeReport(meetingReview.selectedMeeting.startTime)}</div>
+						<div class="ui-g-3" style="background-color: #e0e0d1;">
+							<p:outputLabel value="TIME:" style="font-weight:bold;" />
+						</div>
+						<div class="ui-g-3">|#{meetingReview.meetingTime(meetingReview.selectedMeeting.startTime)}</div>
+					</div>
+					<p:separator />
+					<div class="ui-g">
+						<div class="ui-g-3" style="background-color: #e0e0d1;">
+							<p:outputLabel value="PREPARED BY:" style="font-weight:bold;" />
+						</div>
+						<div class="ui-g-3">|#{meetingReview.organizer.employee.firstName.toUpperCase()}
+							#{meetingReview.organizer.employee.lastName}</div>
+						<div class="ui-g-3" style="background-color: #e0e0d1;">
+							<p:outputLabel value="LOCATION:" style="font-weight:bold;" />
+						</div>
+						<div class="ui-g-3">|#{meetingReview.selectedMeeting.location}</div>
+					</div>
+					<p:separator />
+					<div class="ui-g" style="margin-top: 5px;">
+						<div class="ui-g-12" style="background-color: #b3f0ff">
+							<p:outputLabel value=" 1.MEETING PURPOSE"
+								style="font-weight:bold;" />
+						</div>
+					</div>
+					<div class="ui-g" style="margin-top: 5px;">
+						<div class="ui-g-12">#{meetingReview.selectedMeeting.purpose}</div>
+					</div>
+					<p:separator />
+					<div class="ui-g" style="margin-top: 5px;">
+						<div class="ui-g-12 " style="background-color: #b3f0ff">
+							<p:outputLabel
+								value="2.ATTENDEES(#{meetingReview.attendeesPerMeeting().size() + meetingReview.attendeesPerMeetingEm().size() })"
+								style="font-weight:bold;" />
+						</div>
+					</div>
+					<div class="ui-g" style="margin-top: 5px;">
+						<div class="ui-g-6 ">
+
+							<h:outputLabel
+								value="Employes(#{meetingReview.attendeesPerMeetingEm().size()})"
+								style="text-decoration:underline;font-weight:bold;" />
+
+							<br />
+							<p:repeat value="#{meetingReview.attendeesPerMeetingEm()}"
+								var="par">
+								<h:outputLabel value="#{par.employee.firstName}" /> #{par.employee.lastName}<br />
+							</p:repeat>
+							<br />
+						</div>
+						<div class="ui-g-6 ">
+							<h:outputLabel
+								value="Institutions(#{meetingReview.attendeesPerMeeting().size()})"
+								style="text-decoration:underline;font-weight:bold;" />
+
+							<br />
+							<p:repeat value="#{meetingReview.attendeesPerMeeting()}"
+								var="pari">
+								#{pari.institution.name} [<h:outputLabel
+									value="#{pari.institution.institutionName}"
+									style="font-weight:bold;" />]<br />
+							</p:repeat>
+						</div>
+
+
+					</div>
+					<p:separator />
+					<div class="ui-g" style="margin-top: 5px;">
+						<div class="ui-g-12" style="background-color: #b3f0ff">
+							<p:outputLabel value="3. AGENDA and NOTES, DECISIONS, ISSUES "
+								style="font-weight:bold;" />
+						</div>
+					</div>
+					<div class="ui-g" style="margin-top: 5px;">
+						<div class="ui-g-4" style="background-color: #e0e0d1;">
+							<p:outputLabel value="TOPIC" style="font-weight:bold;" />
+						</div>
+						<div class="ui-g-8" style="background-color: #e0e0d1;">
+							<p:outputLabel value="|DISCUSSION" style="font-weight:bold;" />
+						</div>
+					</div>
+					<p:repeat var="topics" value="#{meetingReview.topicNonExecution()}">
+						<div class="ui-g" style="margin-top: 5px;">
+							<div class="ui-g-4">
+								<p:outputLabel value="#{topics.name}" style="font-weight:bold;" />
+							</div>
+							<div class="ui-g-8">
+								<p:dataList var="res"
+									value="#{meetingReview.getResolutions(topics)}" type="ordered"
+									itemType="decimal" emptyMessage="No Resolutions Taken">
+									<h:outputLabel value="#{res.description}" />
+								</p:dataList>
+							</div>
+						</div>
+						<p:separator />
+					</p:repeat>
+					<div class="ui-g" style="margin-top: 5px;">
+						<div class="ui-g-12 " style="background-color: #b3f0ff">
+							<p:outputLabel value="4. ACTION ITEMS " style="font-weight:bold;" />
+						</div>
+					</div>
+
+					<div class="ui-g" style="margin-top: 5px;">
+						<div class="ui-g-3" style="background-color: #e0e0d1;">
+							<p:outputLabel value="|TOPIC" style="font-weight:bold;margin-top:20px;" />
+						</div>
+						<div class="ui-g-9" style="background-color: #e0e0d1;">
+							<p:panelGrid styleClass="ui-noborder">
+								<p:row>
+									<p:column style="width:50%;background-color: #e0e0d1;">
+										<p:outputLabel value="|ACTION" style="font-weight:bold;" />
+									</p:column>
+									<p:column style="width:30%;background-color: #e0e0d1;">
+										<p:outputLabel value="|ASSIGNED TO" style="font-weight:bold;" />
+									</p:column>
+									<p:column style="width:10%;background-color: #e0e0d1;">
+										<p:outputLabel value="|START" style="font-weight:bold;" />
+									</p:column>
+									<p:column style="width:10%;background-color: #e0e0d1;">
+										<p:outputLabel value="|END" style="font-weight:bold;" />
+									</p:column>
+								</p:row>
+							</p:panelGrid>
+						</div>
+					</div>
+					<p:repeat var="topicsReco"
+						value="#{meetingReview.topicByMeetingRecommendation()}">
+						<div class="ui-g" style="margin-top: 5px;">
+
+							<div class="ui-g-3" >
+								<p:outputLabel value="#{topicsReco.name}"
+									style="font-weight:bold;" />
+							</div>
+							<div class="ui-g-9">
+								<p:panelGrid>
+									<p:repeat var="reso"
+										value="#{meetingReview.getResoTasks(topicsReco)}">
+										<p:row>
+											<p:column style="width:50%;">
+												#{reso.resolution.description}
+											</p:column>
+											<p:column style="width:30%;">
+												#{reso.assignedTo.firstName} #{reso.assignedTo.lastName}
+											</p:column>
+											<p:column style="width:10%;">
+												#{meetingReview.customeDate(reso.startDate)}
+											</p:column>
+											<p:column style="width:10%;">
+												#{meetingReview.customeDate(reso.endDate)}
+											</p:column>
+										</p:row>
+									</p:repeat>
+								</p:panelGrid>
+							</div>
+						</div>
+						<p:separator />
+					</p:repeat>
+				</p:panel>
+			</h:form>
+		</div>
+	</ui:define>
+</ui:composition>

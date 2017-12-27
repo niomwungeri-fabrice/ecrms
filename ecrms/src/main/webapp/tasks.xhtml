@@ -1,0 +1,611 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pu="http://primefaces.org/ultima"
+	template="/WEB-INF/template.xhtml">
+
+	<ui:define name="content">
+		<style type="text/css">
+.main-content {
+	padding: 0;
+}
+
+.meeting-datalist .text-column p:last-child {
+	color: #757575;
+}
+
+.meeting-datalist .meeting-item i, .meeting-datalist .meeting-item .meeting-details
+	{
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.meeting-datalist .meeting-item button {
+	float: right;
+}
+
+.meeting-datalist ul {
+	margin: 0;
+	padding: 0;
+}
+
+.ui-meeting-display td:last-child {
+	font-weight: 700;
+}
+
+@media ( max-width :640px) {
+	.meeting-datalist .text-column {
+		text-align: center;
+	}
+}
+</style>
+		<script type="text/javascript">
+function start() {
+    PF('statusDialog').show();
+}
+ 
+function stop() {
+    PF('statusDialog').hide();
+}
+</script>
+		<p:breadCrumb style="margin-bottom:10px;">
+			<p:menuitem value="Dashboard" url="dashboard.xhtml" />
+			<p:menuitem value="Meetings" url="meetings.xhtml" />
+			<p:menuitem value="Meeting details" url="meetingDetails.xhtml" />
+			<p:menuitem value="Tasks" url="tasks.xhtml" />
+		</p:breadCrumb>
+		<div class="card">
+			<h:form id="myTaskForm">
+				<f:metadata>
+					<f:viewParam name="meetingId" value="#{executionBean.meetingId}" />
+					<f:viewParam name="meetingId" value="#{preMeetingTasks.meetingId}" />
+					<f:viewParam name="to" value="#{preMeetingTasks.username}" />
+
+					<f:viewParam name="to" value="#{executionBean.username}" />
+					<f:viewParam name="to" value="#{meetingReview.username}" />
+					<f:viewParam name="to" value="#{meetingMinutes.username}" />
+					<f:viewParam name="to" value="#{createMeeting.username}" />
+					<f:viewParam name="to" value="#{meetingsBean.username}" />
+					<f:viewParam name="to" value="#{loginBean.username}" />
+				</f:metadata>
+				<div class="ui-g">
+					<div class="ui-g-12">
+						<p:growl id="growl" />
+					</div>
+					<div class="ui-g-12">
+						<p:panel header="Tasks" id="taskPanel">
+							<p:tabView id="mainTab">
+								<p:tab title="Tasks (#{preMeetingTasks.assignedByMe().size()})">
+									<p:growl id="growlTasks" showDetail="true" />
+									<div class="ui-g">
+										<div class="ui-g-12 ui-md-6 ui-lg-2">
+											<h:panelGroup styleClass="md-inputfield"
+												style="margin-bottom:10px;margin-top:10px;">
+												<p:inputText>
+												</p:inputText>
+												<label>Search <i class="fa fa-search"
+													style="float: left;" />
+												</label>
+											</h:panelGroup>
+										</div>
+										<div class="ui-g-12 ui-md-6 ui-lg-6" />
+										<div class="ui-g-12 ui-md-6 ui-lg-2">
+											<p:panelGrid columns="1" style="margin-bottom:10px"
+												layout="grid" styleClass="form-group ui-panelgrid-blank">
+												<p:selectOneMenu id="console"
+													value="#{preMeetingTasks.selectedExecutionStatus}">
+													<f:selectItem itemLabel="Filter" itemValue="" />
+													<f:selectItems itemLabel="#{eStatus}"
+														itemValue="#{eStatus}"
+														value="#{preMeetingTasks.allExecutionStatus()}"
+														var="eStatus" />
+												</p:selectOneMenu>
+											</p:panelGrid>
+										</div>
+										<div class="ui-g-12 ui-md-6 ui-lg-1" />
+										<div class="ui-g-12 ui-md-6 ui-lg-1"
+											style="text-align: center;">
+											<p:commandButton icon="fa fa-plus"
+												disabled="#{loginBean.disableTaskAssign}"
+												oncomplete="PF('Taskdlg').show();" />
+										</div>
+									</div>
+									<p:separator />
+
+									<p:dialog header="Assign tasks" id="TaskdlgId"
+										widgetVar="Taskdlg" width="650" resizable="false" modal="true"
+										responsive="true" hideEffect="scale">
+										<div class="ui-fluid">
+											<p:scrollPanel mode="native" style="height:400px">
+
+												<p:growl showDetail="true" id="growlCreateTak" />
+
+												<div class="ui-g form-group" style="margin-bottom: 16px;">
+
+													<div class="ui-g-12">
+														<h:panelGroup styleClass="md-inputfield"
+															style="margin-top:15px;">
+															<p:inputText value="#{preMeetingTasks.task.name}" />
+															<label>Name</label>
+														</h:panelGroup>
+													</div>
+
+													<div class="ui-g-12">
+														<h:panelGroup styleClass="md-inputfield">
+															<p:inputTextarea
+																value="#{preMeetingTasks.task.description}" />
+															<label>Description</label>
+														</h:panelGroup>
+													</div>
+												</div>
+												<div class="ui-g ui-fluid">
+													<div class="ui-g-6">
+														<h:panelGroup styleClass="md-inputfield"
+															style="margin-left:10px;">
+															<p:calendar value="#{preMeetingTasks.task.startDate}" />
+															<label>Start Date</label>
+														</h:panelGroup>
+													</div>
+													<div class="ui-g-6">
+														<h:panelGroup styleClass="md-inputfield"
+															style="margin-right:10px;">
+															<p:calendar value="#{preMeetingTasks.task.deadLine}" />
+															<label>DeadLine</label>
+														</h:panelGroup>
+													</div>
+													<div class="ui-g-6">
+														<h:panelGroup styleClass="md-inputfield"
+															style="margin-left:10px;margin-top:15px;">
+															<p:watermark value="Assigned By *" for="assignedBy" />
+															<p:selectOneMenu value="#{preMeetingTasks.assignedBy}"
+																editable="true" effect="fade" filter="true"
+																id="assignedBy" filterMatchMode="startsWith"
+																required="true" style="margin-top:7px">
+																<p:ajax listener="#{preMeetingTasks.onByChange()}"
+																	update="assignedTo" />
+																<f:selectItems
+																	value="#{preMeetingTasks.autoCompleteEmployee()}"
+																	var="by" itemLabel="#{by.email}"
+																	itemValue="#{by.email}" />
+															</p:selectOneMenu>
+														</h:panelGroup>
+													</div>
+													<div class="ui-g-6">
+														<h:panelGroup styleClass="md-inputfield"
+															style="margin-right:10px;margin-top:15px;">
+															<p:watermark value="Assigned To *" for="assignedTo" />
+															<p:selectOneMenu value="#{preMeetingTasks.assignedTo}"
+																required="true" editable="true" effect="fade"
+																filter="true" id="assignedTo"
+																filterMatchMode="startsWith" style="margin-top:7px">
+																<p:ajax
+																	listener="#{preMeetingTasks.removeAllEmployee()}" />
+																<f:selectItems value="#{preMeetingTasks.assignToFilted}"
+																	var="to" itemLabel="#{to.email}"
+																	itemValue="#{to.email}" />
+															</p:selectOneMenu>
+														</h:panelGroup>
+													</div>
+												</div>
+
+												<div class="ui-g-12">
+													<p:fieldset legend="Attach Documents">
+														<p:fileUpload
+															fileUploadListener="#{preMeetingTasks.upload}"
+															update="growlCreateTak" mode="advanced"
+															dragDropSupport="false" multiple="true"
+															style="width:100%" process="@this" />
+													</p:fieldset>
+												</div>
+											</p:scrollPanel>
+										</div>
+										<p:commandButton action="#{preMeetingTasks.createTask()}" 
+											process="TaskdlgId"
+											update=":myTaskForm:mainTab:outCreateTask :myTaskForm:taskPanel"
+											onclick="PF('Taskdlg').hide()" style="float:right;margin-top:7px;"
+											icon="ui-icon-save">
+											<p:confirm header="Confirmation" message="Are you sure?"
+												icon="ui-icon-warning" />
+										</p:commandButton>
+										<p:confirmDialog global="true" showEffect="fade"
+											hideEffect="fade" width="250">
+											<p:commandButton value="Yes" type="button"
+												styleClass="ui-confirmdialog-yes GreenButton"
+												icon="ui-icon-check" />
+											<p:commandButton value="No" type="button"
+												styleClass="ui-confirmdialog-no RedButton"
+												icon="ui-icon-close" />
+										</p:confirmDialog>
+										<p:commandButton process="TaskdlgId" title="Cancel"
+											onclick="PF('Taskdlg').hide()"
+											style="float:right;background-color:red;margin-right:10px;margin-top:7px;"
+											icon="fa fa-remove" />
+									</p:dialog>
+
+
+									<p:outputPanel style="margin-top:10px;" id="outCreateTask">
+
+										<div class="ui-g">
+
+											<div class="ui-g-12 ui-md-6 ui-lg-3">
+												<h:outputLabel value="|Name" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-1">
+												<h:outputLabel value="|Given" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-1">
+												<h:outputLabel value="|Start" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-1">
+												<h:outputLabel value="|End" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-2">
+												<h:outputLabel value="|Assigned To"
+													style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-2">
+												<h:outputLabel value="|Status" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-2">
+												<h:outputLabel value="|Action" style="font-weight: bold;" />
+											</div>
+										</div>
+
+										<p:separator />
+										<p:repeat var="task" value="#{preMeetingTasks.assignedByMe()}">
+											<div class="ui-g">
+												<div class="ui-g-12 ui-md-6 ui-lg-3">#{task.name}</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-1">#{preMeetingTasks.customeDate(task.givenDate)}</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-1">#{preMeetingTasks.customeDate(task.startDate)}</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-1">#{preMeetingTasks.customeDate(task.deadLine)}</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-2">#{task.assignedTo.firstName}
+													#{task.assignedTo.lastName}</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-2">#{task.status}</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-2">
+
+													|
+													<p:commandLink style="color:red;" title="Delete Task"
+														action="#{preMeetingTasks.deleteTaskCreated()}"
+														update=":myTaskForm:mainTab:outCreateTask :myTaskForm:mainTab:growlTasks">
+														<i class="fa fa-trash" />
+													</p:commandLink>
+													|
+													<p:commandLink process="@this" style="margin-left:6px;"
+														action="#{preMeetingTasks.openCreatedTask(task)}"
+														update=":myTaskForm:mainTab:taskDetailsCreated :myTaskForm:mainTab:outCreateTask ">
+														<i class="fa fa-folder-open" title="Open task" />
+													</p:commandLink>
+													|
+													<p:commandLink process="@this"
+														action="#{preMeetingTasks.getTaskObject(task)}"
+														update="@widgetVar(commentsDld)"
+														oncomplete="PF('commentsDld').show();">
+														<i class="fa fa-comments-o"
+															title="View comments and download files"
+															style="margin-left: 6px;" />
+														<span class="badge"><p:outputLabel
+																value="#{preMeetingTasks.downloadTaskFiles(task).size()}"
+																style="color:#F83207;font-weight:bold;" /></span>
+													</p:commandLink>
+												</div>
+											</div>
+											<p:separator />
+										</p:repeat>
+										<p:dialog header="Comments and Files" width="500"
+											widgetVar="commentsDld" resizable="false" draggable="false"
+											responsive="true" modal="true" hideEffect="scale">
+
+											<div class="ui-g">
+												<div class="ui-g-6">
+													<h:outputText value="|Comments" style="font-weight: bold;" />
+												</div>
+												<div class="ui-g-2">
+													<h:outputText value="|Dates" style="font-weight: bold;" />
+												</div>
+												<div class="ui-g-4">
+													<h:outputText value="|Files" style="font-weight: bold;" />
+												</div>
+											</div>
+											<p:scrollPanel style="height:200px;">
+												<p:repeat var="taskReports"
+													value="#{preMeetingTasks.taskReports()}">
+													<div class="ui-g">
+														<div class="ui-g-6">#{taskReports.comment}</div>
+														<div class="ui-g-2">#{preMeetingTasks.customeDate(taskReports.commentDate)}</div>
+														<div class="ui-g-4">
+															<p:repeat
+																value="#{preMeetingTasks.resourcePerTaskReport(taskReports)}"
+																var="trs">
+																<p:commandLink
+																	action="#{preMeetingTasks.startDownload(trs)}"
+																	ajax="false" process="@this">
+																	<i class="fa fa-download"> #{trs.fileName}</i>
+																</p:commandLink>
+																<p:separator />
+															</p:repeat>
+														</div>
+													</div>
+													<p:separator />
+												</p:repeat>
+											</p:scrollPanel>
+										</p:dialog>
+										<p:panel header="Process Tasks" id="taskDetailsCreated"
+											closable="true"
+											visible="#{preMeetingTasks.enableTaskDetailsPanel2}">
+											<p:growl showDetail="true" id="growlTaskOut" />
+											<div class="ui-g">
+												<div class="ui-g-12 ui-md-6 ui-lg-8">
+													<div class="ui-fluid">
+														<h:panelGroup styleClass="md-inputfield"
+															style="margin-top:10px;">
+															<p:inputTextarea
+																value="#{preMeetingTasks.taskReport.comment}" />
+															<label>Your Comment <i class="fa fa-comment-o" />
+															</label>
+														</h:panelGroup>
+													</div>
+
+													<p:fileUpload
+														disabled="#{preMeetingTasks.disableFileUploader}"
+														fileUploadListener="#{preMeetingTasks.upload}"
+														mode="advanced" dragDropSupport="false" multiple="true"
+														update=":myTaskForm:mainTab:growlTaskOut"
+														style="width:100%" process="@this" />
+
+													<p:commandButton
+														disabled="#{preMeetingTasks.disableApprovalBtn}"
+														action="#{preMeetingTasks.taskApproval()}"
+														process="taskDetailsCreated"
+														update=":myTaskForm:mainTab:outCreateTask :myTaskForm:mainTab:growlTasks :myTaskForm:mainTab:taskDetailsCreated"
+														value="Approve" icon="fa fa-check" styleClass="green-btn"
+														style="margin-right:10px;margin-top:10px;">
+														<p:confirm header="Confirmation" message="Are you sure?"
+															icon="ui-icon-warning" />
+													</p:commandButton>
+													<p:confirmDialog global="true" showEffect="fade"
+														hideEffect="fade" width="250">
+														<p:commandButton value="Yes" type="button"
+															styleClass="ui-confirmdialog-yes GreenButton"
+															icon="ui-icon-check" />
+														<p:commandButton value="No" type="button"
+															styleClass="ui-confirmdialog-no RedButton"
+															icon="ui-icon-close" />
+													</p:confirmDialog>
+													<p:commandButton style="margin-top:10px;"
+														disabled="#{preMeetingTasks.disableRejectionBtn}"
+														action="#{preMeetingTasks.taskRejection()}"
+														process="taskDetailsCreated"
+														update=":myTaskForm:mainTab:outCreateTask :myTaskForm:mainTab:growlTasks :myTaskForm:mainTab:taskDetailsCreated"
+														value="Reject" icon=" fa fa-remove" styleClass="red-btn">
+														<p:confirm header="Confirmation" message="Are you sure?"
+															icon="ui-icon-warning" />
+													</p:commandButton>
+													<p:confirmDialog global="true" showEffect="fade"
+														hideEffect="fade" width="250">
+														<p:commandButton value="Yes" type="button"
+															styleClass="ui-confirmdialog-yes GreenButton"
+															icon="ui-icon-check" />
+														<p:commandButton value="No" type="button"
+															styleClass="ui-confirmdialog-no RedButton"
+															icon="ui-icon-close" />
+													</p:confirmDialog>
+												</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-4">
+													<h2>Task Description</h2>
+													<p:separator />
+													#{preMeetingTasks.selectedTask.description}
+												</div>
+											</div>
+										</p:panel>
+									</p:outputPanel>
+								</p:tab>
+
+								<p:tab
+									title="My Tasks(#{preMeetingTasks.assignedToMe().size()})"
+									id="myTaskTab">
+									<p:outputPanel style="margin-top:10px;" id="outMyTask">
+
+										<div class="ui-g">
+											<div class="ui-g-12 ui-md-6 ui-lg-2">
+												<h:panelGroup styleClass="md-inputfield"
+													style="margin-bottom:10px;margin-top:10px;">
+													<p:inputText>
+													</p:inputText>
+													<label>Search <i class="fa fa-search"
+														style="float: left;" />
+													</label>
+												</h:panelGroup>
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-10" />
+
+										</div>
+										<p:separator />
+										<div class="ui-g">
+
+											<div class="ui-g-12 ui-md-6 ui-lg-4">
+												<h:outputLabel value="|Name" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-1">
+												<h:outputLabel value="|Given" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-1">
+												<h:outputLabel value="|Start" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-1">
+												<h:outputLabel value="|End" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-2">
+												<h:outputLabel value="|Assigned By"
+													style="font-weight: bold;" />
+											</div>
+
+											<div class="ui-g-12 ui-md-6 ui-lg-2">
+												<h:outputLabel value="|Status" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-12 ui-md-6 ui-lg-1">
+												<h:outputLabel value="|Action" style="font-weight: bold;" />
+											</div>
+										</div>
+
+										<p:separator />
+										<p:repeat var="task" value="#{preMeetingTasks.assignedToMe()}">
+
+											<div class="ui-g">
+												<div class="ui-g-12 ui-md-6 ui-lg-4">#{task.name}</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-1">#{preMeetingTasks.customeDate(task.givenDate)}</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-1">#{preMeetingTasks.customeDate(task.startDate)}</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-1">#{preMeetingTasks.customeDate(task.deadLine)}</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-2">#{task.assignedBy.firstName}
+													#{task.assignedBy.lastName}</div>
+
+												<div class="ui-g-12 ui-md-6 ui-lg-2">#{task.status}</div>
+
+												<div class="ui-g-12 ui-md-6 ui-lg-1"
+													style="text-align: center">
+													<p:commandLink process="@this"
+														action="#{preMeetingTasks.openTask(task)}"
+														update=":myTaskForm:mainTab:taskDetaits :myTaskForm:mainTab:outMyTask">
+														<i class="fa fa-folder-open" title="Open task" />
+													</p:commandLink>
+
+													<p:commandLink process="@this"
+														action="#{preMeetingTasks.getTaskObject(task)}"
+														update="@widgetVar(commentsDldMyTask)"
+														oncomplete="PF('commentsDldMyTask').show();">
+														<i class="fa fa-comments-o" title="Attachments"
+															style="margin-left: 6px;" />
+														<span class="badge"><p:outputLabel
+																value="#{preMeetingTasks.downloadTaskFiles(task).size()}"
+																style="color:#F83207;font-weight:bold;" /></span>
+													</p:commandLink>
+												</div>
+											</div>
+
+											<p:separator />
+										</p:repeat>
+										<p:dialog header="Comments and Files" width="500"
+											widgetVar="commentsDldMyTask" resizable="true"
+											draggable="false" responsive="true" modal="true"
+											hideEffect="scale">
+
+											<div class="ui-g">
+												<div class="ui-g-6">
+													<h:outputText value="|Comments" style="font-weight: bold;" />
+												</div>
+												<div class="ui-g-2">
+													<h:outputText value="|Dates" style="font-weight: bold;" />
+												</div>
+												<div class="ui-g-4">
+													<h:outputText value="|Files" style="font-weight: bold;" />
+												</div>
+											</div>
+											<p:scrollPanel style="height:200px;">
+												<p:repeat var="taskReports"
+													value="#{preMeetingTasks.taskReports()}">
+													<div class="ui-g">
+														<div class="ui-g-6">#{taskReports.comment}</div>
+														<div class="ui-g-2">#{preMeetingTasks.customeDate(taskReports.commentDate)}</div>
+														<div class="ui-g-4">
+															<p:repeat
+																value="#{preMeetingTasks.resourcePerTaskReport(taskReports)}"
+																var="trs">
+																<p:commandLink
+																	action="#{preMeetingTasks.startDownload(trs)}"
+																	ajax="false" process="@this">
+																	<i class="fa fa-download"> #{trs.fileName}</i>
+																</p:commandLink>
+																<p:spacer />
+															</p:repeat>
+														</div>
+													</div>
+													<p:separator />
+												</p:repeat>
+											</p:scrollPanel>
+										</p:dialog>
+										<p:panel id="taskDetaits" header="Process Task"
+											closable="true"
+											visible="#{preMeetingTasks.enableTaskDetailsPanel}">
+											<p:growl showDetail="true" id="growlTask" />
+											<div class="ui-g">
+												<div class="ui-g-12 ui-md-6 ui-lg-8">
+													<div class="ui-fluid">
+														<h:panelGroup styleClass="md-inputfield"
+															style="margin-top:10px;">
+															<p:inputTextarea
+																value="#{preMeetingTasks.taskReport.comment}" />
+															<label>Your Comment <i class="fa fa-comment-o" />
+															</label>
+														</h:panelGroup>
+													</div>
+
+													<p:fileUpload
+														disabled="#{preMeetingTasks.disableFileUploader}"
+														fileUploadListener="#{preMeetingTasks.upload}"
+														mode="advanced" dragDropSupport="false" multiple="true"
+														update=":myTaskForm:mainTab:growlTask" style="width:100%"
+														process="@this" />
+
+
+													<p:commandButton
+														disabled="#{preMeetingTasks.disableSubmitBtn}"
+														update=":myTaskForm:mainTab:outMyTask :myTaskForm:mainTab:taskDetaits"
+														value="Submit" icon="fa fa-file-text"
+														process="taskDetaits"
+														action="#{preMeetingTasks.tastReporting()}"
+														styleClass="green-btn"
+														style="margin-right:10px;margin-top:10px;">
+														<p:confirm header="Confirmation" message="Are you sure?"
+															icon="ui-icon-warning" />
+													</p:commandButton>
+													<p:confirmDialog global="true" showEffect="fade"
+														hideEffect="fade" width="250">
+														<p:commandButton value="Yes" type="button"
+															styleClass="ui-confirmdialog-yes GreenButton"
+															icon="ui-icon-check" />
+														<p:commandButton value="No" type="button"
+															styleClass="ui-confirmdialog-no RedButton"
+															icon="ui-icon-close" />
+													</p:confirmDialog>
+												</div>
+												<div class="ui-g-12 ui-md-6 ui-lg-4">
+													<h2>Task Description</h2>
+													<p:separator />
+													#{preMeetingTasks.selectedTask.description}
+
+													<p:fieldset legend="Attachments" id="attachments">
+														<p:repeat var="ta"
+															value="#{preMeetingTasks.taskAttachements()}">
+															<p:commandLink process="@this"
+																action="#{preMeetingTasks.startDownload(ta)}"
+																ajax="false">
+																<i class="fa fa-download"> #{ta.fileName}</i>
+															</p:commandLink>
+														</p:repeat>
+													</p:fieldset>
+												</div>
+											</div>
+										</p:panel>
+									</p:outputPanel>
+								</p:tab>
+							</p:tabView>
+						</p:panel>
+					</div>
+				</div>
+			</h:form>
+			<p:ajaxStatus style="display:block;margin-bottom:2em;height:24px;">
+				<f:facet name="start">
+					<p:graphicImage name="/ultima-layout/images/ajax-loader.gif" />
+				</f:facet>
+			</p:ajaxStatus>
+			<p:ajaxStatus onstart="PF('statusDialog').show()"
+				onsuccess="PF('statusDialog').hide()" />
+
+			<p:dialog widgetVar="statusDialog" modal="true" draggable="false"
+				closable="false" resizable="false" showHeader="false">
+				<p:graphicImage name="/ultima-layout/images/ajax-loader.gif" />
+			</p:dialog>
+		</div>
+	</ui:define>
+</ui:composition>

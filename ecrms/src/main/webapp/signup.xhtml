@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<f:facet name="first">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta name="viewport"
+			content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+	</f:facet>
+	<title>crms - Sign Up</title>
+	<h:outputScript name="js/ripple.js" library="ultima-layout" />
+	<h:outputScript name="js/layout.js" library="ultima-layout" />
+</h:head>
+
+<h:body styleClass="login-body">
+	<div class="ui-g">
+		<div class="ui-g-2">
+			<p:button outcome="/login" value="Login" styleClass="secondary"
+				icon="fa fa-arrow-circle-left" />
+		</div>
+		<div class="ui-g-10" />
+	</div>
+	<div class="card login-panel ui-fluid">
+		<h:form id="passForm">
+			<p:growl showDetail="true" />
+			<div class="ui-g">
+				<div class="ui-g-12">
+					<h:panelGroup styleClass="md-inputfield">
+						<p:inputText value="#{loginBean.username}" />
+						<label>Email</label>
+					</h:panelGroup>
+				</div>
+				<div class="ui-g-12">
+					<h:panelGroup styleClass="md-inputfield">
+						<p:password value="#{loginBean.password}" feedback="true"
+							inline="true" />
+						<label>New Password</label>
+					</h:panelGroup>
+				</div>
+				<div class="ui-g-12">
+					<h:panelGroup styleClass="md-inputfield">
+						<p:password value="#{loginBean.password}" />
+						<label>Confirm Password</label>
+					</h:panelGroup>
+				</div>
+				<div class="ui-g-12">
+					<p:commandButton action="#{loginBean.createAccount()}"
+						update="passForm" value="Create Account" icon="ui-icon-person" />
+
+					<p:commandLink onclick="PF('goodPswdDld').show()">
+						<i class="fa fa-unlock" style="text-decoration: underline;">
+							What is a good password?</i>
+					</p:commandLink>
+					<p:dialog widgetVar="goodPswdDld" width="400" modal="true"
+						header="The Traditional Password Advice">
+						<ul>
+							<li style="text-align: left;">Has 6 Characters, Minimum</li>
+							<li style="text-align: left;">Includes Numbers, Symbols,
+								Capital Letters, and Lower-Case Letters</li>
+							<li style="text-align: left;">Isn’t a Dictionary Word or
+								Combination of Dictionary Words</li>
+							<li style="text-align: left;">Doesn’t Rely on Obvious
+								Substitutions</li>
+						</ul>
+
+					</p:dialog>
+				</div>
+
+
+			</div>
+		</h:form>
+	</div>
+	<h:outputStylesheet name="css/ripple.css" library="ultima-layout" />
+	<h:outputStylesheet name="css/layout-#{guestPreferences.theme}.css"
+		library="ultima-layout" />
+</h:body>
+
+</html>

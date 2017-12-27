@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<f:facet name="first">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta name="viewport"
+			content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+	</f:facet>
+	<title>crms - Welcome to crms</title>
+	<h:outputScript name="js/ripple.js" library="ultima-layout" />
+	<h:outputScript name="js/layout.js" library="ultima-layout" />
+	<link rel="icon" type="image/png" href="images/itcg.png" />
+</h:head>
+
+<h:body styleClass="login-body">
+	<div class="ui-g">
+		<div class="ui-g-10" />
+		<div class="ui-g-2">
+			<p:button outcome="/signup" value="Sign up" icon="fa fa-user"
+				style="float:right;" styleClass="secondary" />
+		</div>
+	</div>
+	<div class="card login-panel ui-fluid">
+		<h:form id="loginForm">
+			<p:growl showDetail="true" />
+			<div class="ui-g">
+				<div class="ui-g-12">
+					<h:panelGroup styleClass="md-inputfield">
+						<p:inputText label="Username" value="#{loginBean.username}"
+							required="true" id="username">
+							<p:ajax event="keyup" update="usernameMsg" />
+						</p:inputText>
+						<label>Username</label>
+						<p:message for="username" id="usernameMsg" style="float:left;" />
+					</h:panelGroup>
+				</div>
+				<div class="ui-g-12">
+					<h:panelGroup styleClass="md-inputfield">
+						<p:password label="Password" value="#{loginBean.password}"
+							required="true" id="password">
+							<p:ajax event="keyup" update="passwordMsg" />
+						</p:password>
+						<label>Password</label>
+						<p:message for="password" id="passwordMsg" />
+					</h:panelGroup>
+				</div>
+
+				<div class="ui-g-12">
+					<p:commandButton action="#{loginBean.login()}" value="Sign In"
+						ajax="false" update="loginForm" icon="fa fa-sign-in">
+						<f:setPropertyActionListener value="#{loginBean.username}"
+							target="#{meetingReview.username}" />
+						<f:setPropertyActionListener value="#{loginBean.username}"
+							target="#{preMeetingTasks.username}" />
+						<f:setPropertyActionListener value="#{loginBean.username}"
+							target="#{meetingMinutes.username}" />
+						<f:setPropertyActionListener value="#{loginBean.username}"
+							target="#{executionBean.username}" />
+						<f:setPropertyActionListener value="#{loginBean.username}"
+							target="#{createMeeting.username}" />
+						<f:setPropertyActionListener value="#{loginBean.username}"
+							target="#{meetingsBean.username}" />
+					</p:commandButton>
+					<p:button outcome="/changePassword" value="Forgot Password"
+						icon="ui-icon-help" styleClass="secondary" />
+				</div>
+			</div>
+		</h:form>
+	</div>
+	<h:outputStylesheet name="css/ripple.css" library="ultima-layout" />
+	<h:outputStylesheet name="css/layout-#{guestPreferences.theme}.css"
+		library="ultima-layout" />
+</h:body>
+
+</html>

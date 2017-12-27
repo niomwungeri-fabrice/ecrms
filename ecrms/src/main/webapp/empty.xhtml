@@ -1,0 +1,27 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="content">
+		<div class="ui-g">
+			<p:growl id="growl" showSummary="true" showDetail="true"
+				autoUpdate="true" />
+
+			<p:timeline id="timeline" value="#{basicTimelineView.model}"
+				height="250px" selectable="#{basicTimelineView.selectable}"
+				zoomable="#{basicTimelineView.zoomable}"
+				moveable="#{basicTimelineView.moveable}"
+				stackEvents="#{basicTimelineView.stackEvents}"
+				axisOnTop="#{basicTimelineView.axisOnTop}"
+				eventStyle="#{basicTimelineView.eventStyle}"
+				showCurrentTime="#{basicTimelineView.showCurrentTime}"
+				showNavigation="#{basicTimelineView.showNavigation}">
+
+				<p:ajax event="select" listener="#{basicTimelineView.onSelect}" />
+
+			</p:timeline>
+		</div>
+	</ui:define>
+</ui:composition>

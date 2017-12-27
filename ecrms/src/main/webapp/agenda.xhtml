@@ -1,0 +1,635 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="content">
+		<style type="text/css">
+.cars-datalist .text-column p:last-child {
+	color: #757575;
+}
+
+.cars-datalist .car-item i, .cars-datalist .car-item .car-details {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.cars-datalist .car-item button {
+	float: right;
+}
+
+.cars-datalist ul {
+	margin: 0;
+	padding: 0;
+}
+
+.ui-car-display td:last-child {
+	font-weight: 700;
+}
+
+@media ( max-width :640px) {
+	.cars-datalist .text-column {
+		text-align: center;
+	}
+}
+</style>
+		<script type="text/javascript">
+function start() {
+    PF('statusDialog').show();
+}
+ 
+function stop() {
+    PF('statusDialog').hide();
+}
+</script>
+		<p:breadCrumb style="margin-bottom:10px;">
+			<p:menuitem value="Dashboard" url="dashboard.xhtml" />
+			<p:menuitem value="Meetings" url="meetings.xhtml" />
+			<p:menuitem value="Meeting details" url="meetingDetails.xhtml" />
+			<p:menuitem value="Agenda" url="agenda.xhtml" />
+		</p:breadCrumb>
+		<div class="card">
+			<div class="ui-g">
+				<div class="ui-g-12">
+					<p:panel header="Design the agenda" id="agendaPanel">
+						<h:form id="agendaForm">
+							<p:growl id="growl" showDetail="true" />
+							<center>
+								<h1 style="font-weight: bold; color: maroon;">AGENDA</h1>
+								<h2 style="font-weight: bold;">#{createMeeting.meeting.title}</h2>
+							</center>
+							<p:separator />
+							<div class="ui-g">
+
+								<div class="ui-g-12 ui-md-6 ui-lg-3">
+									<h:outputText value="|Date:" style="font-weight: bold;" />
+
+									#{createMeeting.customeDate(createMeeting.meeting.startTime)} -
+									#{createMeeting.customeDate(createMeeting.meeting.endTime)}
+									#{createMeeting.meetingYear(createMeeting.meeting.endTime)}
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-4">
+									<h:outputText value="|Location:" style="font-weight: bold;" />
+									#{createMeeting.meeting.location}
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-5">
+									<h:outputText value="|Meeting called by:"
+										style="font-weight: bold;" />
+									#{createMeeting.orginier().employee.firstName}
+									#{createMeeting.orginier().employee.lastName}
+								</div>
+							</div>
+							<p:separator />
+							<div class="ui-g">
+								<div class="ui-g-12 ui-md-6 ui-lg-1">
+									<p:commandButton id="addTopic" onclick="PF('dlgTopic').show();"
+										disabled="#{loginBean.disableScheduling}" type="button"
+										icon="fa fa-plus" />
+									<p:tooltip for="addTopic" value="Add new topic" position="top" />
+									<p:dialog id="addTopicDlg" header="Add Topic" modal="true"
+										widgetVar="dlgTopic" resizable="false" draggable="true"
+										width="700" responsive="true" hideEffect="scale">
+										<div class="ui-fluid">
+											<div class="ui-g form-group">
+												<div class="ui-g-12">
+													<h:panelGroup styleClass="md-inputfield">
+														<p:inputText value="#{createMeeting.topic.name}"
+															label="Topic name Add" id="topicName">
+														</p:inputText>
+														<label>Name *</label>
+														<p:message for="topicName" id="topicNameMsg" />
+													</h:panelGroup>
+												</div>
+												<div class="ui-g-12">
+													<h:panelGroup styleClass="md-inputfield">
+														<p:inputTextarea value="#{createMeeting.topic.objective}" />
+														<label>Objective</label>
+													</h:panelGroup>
+												</div>
+											</div>
+											<p:panelGrid columns="2" layout="grid"
+												styleClass="ui-panelgrid-blank form-group">
+												<h:panelGroup styleClass="md-inputfield">
+													<p:calendar label="Start time" id="topicStartTime"
+														pattern="dd/MM/yyyy HH:mm"
+														mindate="#{createMeeting.meeting.startTime}"
+														maxdate="#{createMeeting.meeting.endTime}"
+														value="#{createMeeting.topic.startTime}">
+														<p:ajax event="keydown" update="topicStartTimeMsg" />
+													</p:calendar>
+													<label>Start Time *</label>
+													<p:message for="topicStartTime" id="topicStartTimeMsg" />
+												</h:panelGroup>
+
+
+												<h:panelGroup styleClass="md-inputfield">
+													<p:calendar label="End time" id="topicEndTime"
+														value="#{createMeeting.topic.endTime}"
+														mindate="#{createMeeting.meeting.startTime}"
+														maxdate="#{createMeeting.meeting.endTime}"
+														pattern="dd/MM/yyyy HH:mm">
+														<p:ajax event="keydown" update="topicEndTimeMsg" />
+													</p:calendar>
+													<label>End Time *</label>
+													<p:message for="topicEndTime" id="topicEndTimeMsg" />
+												</h:panelGroup>
+
+											</p:panelGrid>
+											<div class="ui-g-12">
+												Presenter:
+												<p:tabView id="mainTabT">
+
+													<p:ajax event="tabChange"
+														listener="#{createMeeting.onTabChange}"
+														update=":agendaForm:growl" />
+
+													<p:tab title="Internal" id="internalTabT">
+														<div class="ui-g">
+															<div class="ui-g-6">
+																<h:panelGroup styleClass="md-inputfield"
+																	style="margin-top:20px;margin-bottom:20px;">
+																	<p:autoComplete id="presenterr" dropdown="true"
+																		label="Presenter"
+																		value="#{createMeeting.presenterEmp}"
+																		completeMethod="#{createMeeting.completeEmployees}">
+																	</p:autoComplete>
+																	<label> Search email,names,... *</label>
+
+																	<p:message for="presenterr" id="presenterrMsg" />
+																</h:panelGroup>
+																<h:outputText value="No Presenter " />
+																<p:selectBooleanCheckbox
+																	value="#{createMeeting.noPresenter}">
+																</p:selectBooleanCheckbox>
+															</div>
+															<div class="ui-g-6" />
+														</div>
+													</p:tab>
+
+													<p:tab title="External Entity">
+														<p:tabView id="innerMainTabT" activeIndex="1">
+															<p:tab title="Contacts">
+																<div class="ui-g ">
+																	<div class="ui-g-6">
+																		<h:panelGroup styleClass="md-inputfield"
+																			style="margin-top:20px;margin-bottom:20px;">
+																			<p:autoComplete id="presenterr" dropdown="true"
+																				label="Presenter"
+																				value="#{createMeeting.presenterInt}"
+																				completeMethod="#{createMeeting.completeInstitutions}">
+																			</p:autoComplete>
+																			<label> Search email,names,... *</label>
+																			<p:message for="presenterr" id="presenterrMsg" />
+																		</h:panelGroup>
+																	</div>
+																	<div class="ui-g-6" />
+																</div>
+															</p:tab>
+															<p:tab title="New Contact" id="contactTabT">
+																<p:growl id="newGrowlT" showDetail="true" />
+																<div class="ui-g ui-fluid">
+																	<p:panelGrid columns="3" layout="grid"
+																		styleClass="ui-panelgrid-blank form-group">
+																		<h:panelGroup styleClass="md-inputfield">
+																			<p:inputText
+																				value="#{createMeeting.institution.name}" />
+																			<label>Names</label>
+																		</h:panelGroup>
+																		<h:panelGroup styleClass="md-inputfield">
+																			<p:inputText
+																				value="#{createMeeting.institution.email}" />
+																			<label>Email</label>
+																		</h:panelGroup>
+																		<h:panelGroup styleClass="md-inputfield">
+																			<p:inputText
+																				value="#{createMeeting.institution.phoneNumber}" />
+																			<label>Phone</label>
+																		</h:panelGroup>
+																		<h:panelGroup styleClass="md-inputfield">
+																			<p:inputText
+																				value="#{createMeeting.institution.institutionName}" />
+																			<label>Institution</label>
+																		</h:panelGroup>
+																		<h:panelGroup styleClass="md-inputfield">
+																			<p:inputText
+																				value="#{createMeeting.institution.position}" />
+																			<label>Position</label>
+																		</h:panelGroup>
+																		<p:commandButton icon="fa fa-plus" value="Add new"
+																			process="contactTabT"
+																			action="#{createMeeting.createExternalEntity()}"
+																			update=":agendaForm:mainTabT:innerMainTabT :agendaForm:mainTabT:innerMainTabT" />
+																	</p:panelGrid>
+																</div>
+															</p:tab>
+														</p:tabView>
+													</p:tab>
+												</p:tabView>
+											</div>
+										</div>
+
+										<p:commandButton onclick="PF('dlgTopic').hide()"
+											style="float:right;" icon="fa fa-plus" title="Add Topic"
+											action="#{createMeeting.addTopic()}"
+											update="agendaPanel agendaForm:growl" process="addTopicDlg">
+											<p:confirm header="Confirmation" message="Are you sure?"
+												icon="ui-icon-warning" />
+										</p:commandButton>
+										<p:confirmDialog global="true" showEffect="fade"
+											hideEffect="fade" width="250">
+											<p:commandButton value="Yes" type="button"
+												styleClass="ui-confirmdialog-yes GreenButton"
+												icon="ui-icon-check" />
+											<p:commandButton value="No" type="button"
+												styleClass="ui-confirmdialog-no RedButton"
+												icon="ui-icon-close" />
+										</p:confirmDialog>
+										<p:commandButton process="addTopicDlg" title="Cancel"
+											onclick="PF('dlgTopic').hide()"
+											style="float:right;background-color:red;margin-right:10px;"
+											icon="fa fa-remove" />
+									</p:dialog>
+
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-9" />
+								<div class="ui-g-12 ui-md-6 ui-lg-1">
+
+									<p:commandLink action="#{createMeeting.topicsReport()}"
+										ajax="false" process="@this" id="printAgenda">
+										<i class="fa fa-print"> Print</i>
+									</p:commandLink>
+									<p:tooltip for="printAgenda" value="Print the agenda"
+										position="top" />
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-1">
+									<p:commandLink id="shareAgenda" onclick="PF('shareDld').show()"
+										disabled="#{loginBean.disableScheduling}">
+										<i class="fa fa-share-alt"> Share</i>
+									</p:commandLink>
+									<p:tooltip for="shareAgenda" value="Share the agenda"
+										position="top" />
+									<p:dialog id="shareDldId" header="Invite participants"
+										width="700" widgetVar="shareDld" modal="true"
+										resizable="false" draggable="false" responsive="true"
+										hideEffect="scale">
+										<p:tabView id="mainTab">
+											<p:tab title="Internal" id="internalTab">
+												<div class="ui-g">
+													<div class="ui-g-4">
+														<p:selectCheckboxMenu id="menu"
+															converter="employeeConverter" style="margin-bottom:15px;"
+															label="Internal Employees"
+															value="#{createMeeting.selectedEmployees}" filter="true"
+															filterMatchMode="startsWith">
+															<f:selectItems value="#{createMeeting.allEmployees}"
+																var="c" itemLabel="#{c.email}" itemValue="#{c}" />
+														</p:selectCheckboxMenu>
+														<br />
+														<p:commandButton icon="fa fa-plus"
+															update="display :agendaForm:mainTab"
+															process=":agendaForm:mainTab" />
+													</div>
+													<div class="ui-g-8">
+														<p:outputPanel id="display">
+															<p:scrollPanel style="height:150px;width:auto;">
+																<p:dataList value="#{createMeeting.selectedEmployees}"
+																	type="ordered" itemType="decimal" var="inv"
+																	emptyMessage="No Employee selected">
+																	<h:outputLabel
+																		value="#{inv.firstName} #{inv.lastName} (#{inv.email})" />
+																	<br />
+																</p:dataList>
+															</p:scrollPanel>
+														</p:outputPanel>
+													</div>
+												</div>
+											</p:tab>
+
+											<p:tab title="External Entity">
+												<p:tabView id="innerMainTab">
+													<p:tab title="Contacts">
+														<div class="ui-g ">
+															<div class="ui-g-4">
+																<p:selectCheckboxMenu id="instaInvited"
+																	converter="institutionConverter"
+																	style="margin-bottom:15px;"
+																	label="External Institution"
+																	value="#{createMeeting.selectedInstitutions}"
+																	filter="true" filterMatchMode="startsWith">
+																	<f:selectItems value="#{createMeeting.allInstitutions}"
+																		var="c" itemLabel="#{c.email}" itemValue="#{c}" />
+																</p:selectCheckboxMenu>
+																<br />
+																<p:commandButton icon="fa fa-plus"
+																	update="displayInstitution :agendaForm:mainTab"
+																	process=":agendaForm:shareDldId" />
+															</div>
+															<div class="ui-g-8">
+																<p:outputPanel id="displayInstitution">
+																	<p:scrollPanel style="height:150px;width:auto;">
+																		<p:dataList
+																			value="#{createMeeting.selectedInstitutions}"
+																			var="inv" type="ordered" itemType="decimal"
+																			emptyMessage="No Institution selected">
+																			<h:outputLabel value="#{inv.name} (#{inv.email})" />
+																		</p:dataList>
+																	</p:scrollPanel>
+																</p:outputPanel>
+															</div>
+														</div>
+													</p:tab>
+													<p:tab title="New Contact" id="contactTab">
+														<p:growl id="newGrowl" showDetail="true" />
+														<div class="ui-g ui-fluid">
+															<p:panelGrid columns="3" layout="grid"
+																styleClass="ui-panelgrid-blank form-group">
+																<h:panelGroup styleClass="md-inputfield">
+																	<p:inputText value="#{createMeeting.institution.name}" />
+																	<label>Names</label>
+																</h:panelGroup>
+																<h:panelGroup styleClass="md-inputfield">
+																	<p:inputText value="#{createMeeting.institution.email}" />
+																	<label>Email</label>
+																</h:panelGroup>
+																<h:panelGroup styleClass="md-inputfield">
+																	<p:inputText
+																		value="#{createMeeting.institution.phoneNumber}" />
+																	<label>Phone</label>
+																</h:panelGroup>
+																<h:panelGroup styleClass="md-inputfield">
+																	<p:inputText
+																		value="#{createMeeting.institution.institutionName}" />
+																	<label>Institution</label>
+																</h:panelGroup>
+																<h:panelGroup styleClass="md-inputfield">
+																	<p:inputText
+																		value="#{createMeeting.institution.position}" />
+																	<label>Position</label>
+																</h:panelGroup>
+																<p:commandButton icon="fa fa-plus" value="Add new"
+																	process="contactTab"
+																	action="#{createMeeting.createExternalEntity()}"
+																	update=":agendaForm:mainTab:innerMainTab" />
+															</p:panelGrid>
+														</div>
+													</p:tab>
+												</p:tabView>
+											</p:tab>
+										</p:tabView>
+										<p:commandButton action="#{createMeeting.invite()}"
+											title="Invite" process=":agendaForm:shareDldId"
+											update=":agendaForm:growl :agendaForm:shareDldId"
+											style="margin-top:5px;float:right;" icon="ui-icon-send">
+											<p:confirm header="Confirmation"
+												message="Are you sure? this will send email to the selected participants"
+												icon="ui-icon-warning" />
+										</p:commandButton>
+										<p:confirmDialog global="true" showEffect="fade"
+											hideEffect="fade" width="250">
+											<p:commandButton value="Yes" type="button"
+												styleClass="ui-confirmdialog-yes GreenButton"
+												icon="ui-icon-check" />
+											<p:commandButton value="No" type="button"
+												styleClass="ui-confirmdialog-no RedButton"
+												icon="ui-icon-close" />
+										</p:confirmDialog>
+
+
+									</p:dialog>
+
+									<p:tooltip for="shareAgenda" value="Share the agenda"
+										position="top" />
+								</div>
+							</div>
+
+							<p:separator />
+							<div class="ui-g">
+								<div class="ui-g-12 ui-md-6 ui-lg-3">
+									<h:outputLabel value="|Time" />
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-2">
+									<h:outputLabel value="|Name" />
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-3">
+									<h:outputLabel value="|Objectives" />
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-3">
+									<h:outputLabel value="|Presenter" />
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-1">
+									<h:outputLabel value="|Action" />
+								</div>
+							</div>
+							<p:separator />
+
+
+							<p:repeat value="#{createMeeting.tbyMeeting()}" var="topics">
+								<div class="ui-g">
+									<div class="ui-g-12 ui-md-6 ui-lg-3">
+										#{createMeeting.convertToTime(topics.startTime)} -
+										#{createMeeting.convertToEndTime(topics.endTime)}</div>
+									<div class="ui-g-12 ui-md-6 ui-lg-2">#{topics.name}</div>
+									<div class="ui-g-12 ui-md-6 ui-lg-3">#{topics.objective}</div>
+									<div class="ui-g-12 ui-md-6 ui-lg-3">#{createMeeting.getPresenterDetails(topics)}</div>
+									<div class="ui-g-12 ui-md-6 ui-lg-1" style="text-align: center">
+
+										<p:commandLink oncomplete="PF('topicDldEdit').show()"
+											disabled="#{loginBean.disableScheduling}" process="@this"
+											update="@widgetVar(topicDldEdit)"
+											action="#{createMeeting.getTopicObj(topics)}">
+											<i class="fa fa-pencil" />
+										</p:commandLink>
+
+										<p:commandLink style="color:red;margin-left:10px;"
+											disabled="#{loginBean.disableScheduling}"
+											update="agendaPanel agendaForm:growl" process="@this"
+											action="#{createMeeting.removeTopic(topics)}">
+											<p:confirm header="Confirmation" message="Are you sure?"
+												icon="ui-icon-warning" />
+											<i class="fa fa-trash" />
+										</p:commandLink>
+										<p:confirmDialog global="true" showEffect="fade"
+											hideEffect="fade" width="250">
+											<p:commandButton value="Yes" type="button"
+												styleClass="ui-confirmdialog-yes GreenButton"
+												icon="ui-icon-check" />
+											<p:commandButton value="No" type="button"
+												styleClass="ui-confirmdialog-no RedButton"
+												icon="ui-icon-close" />
+										</p:confirmDialog>
+									</div>
+								</div>
+								<p:separator />
+							</p:repeat>
+							<p:dialog header="Update Topic Information" id="addTopicDlgEdit"
+								widgetVar="topicDldEdit" resizable="false" modal="true"
+								width="700" draggable="false" responsive="true"
+								hideEffect="scale">
+
+								<div class="ui-fluid">
+									<div class="ui-g form-group" style="margin-bottom: 16px;">
+
+										<div class="ui-g-12">
+											<h:panelGroup styleClass="md-inputfield">
+												<p:inputText value="#{createMeeting.topic.name}" />
+												<label>Name *</label>
+											</h:panelGroup>
+										</div>
+
+										<div class="ui-g-12">
+											<h:panelGroup styleClass="md-inputfield">
+												<p:inputTextarea value="#{createMeeting.topic.objective}" />
+												<label>Objective</label>
+											</h:panelGroup>
+										</div>
+									</div>
+									<p:panelGrid columns="2" layout="grid"
+										styleClass="ui-panelgrid-blank form-group">
+
+										<h:panelGroup styleClass="md-inputfield">
+											<p:calendar label="Start time" id="topicStartTimeEdit"
+												pattern="dd/MM/yyyy HH:mm"
+												value="#{createMeeting.topic.startTime}">
+												<p:ajax event="keydown" update="topicStartTimeMsgEdit" />
+											</p:calendar>
+											<label>Start Time *</label>
+											<p:message for="topicStartTimeEdit"
+												id="topicStartTimeMsgEdit" />
+										</h:panelGroup>
+										<h:panelGroup styleClass="md-inputfield">
+											<p:calendar label="End time" id="topicEndTimeEdit"
+												value="#{createMeeting.topic.endTime}"
+												pattern="dd/MM/yyyy HH:mm">
+												<p:ajax event="keydown" update="topicEndTimeMsgEdit" />
+											</p:calendar>
+											<label>End Time *</label>
+											<p:message for="topicEndTimeEdit" id="topicEndTimeMsgEdit" />
+										</h:panelGroup>
+									</p:panelGrid>
+									<div class="ui-g-12">
+										Presenter:
+										<p:tabView id="mainTabTedit">
+											<p:ajax event="tabChange"
+												listener="#{createMeeting.onTabChangeEdit}"
+												update=":agendaForm:growl" />
+											<p:tab title="Internal" id="internalTabTedit">
+												<div class="ui-g">
+													<div class="ui-g-6">
+														<h:panelGroup styleClass="md-inputfield"
+															style="margin-top:20px;margin-bottom:20px;">
+															<p:autoComplete id="presenterrEdit" dropdown="true"
+																label="Presenter" value="#{createMeeting.presenterEmp}"
+																completeMethod="#{createMeeting.completeEmployees}">
+															</p:autoComplete>
+															<label> Search email,names,... *</label>
+
+															<p:message for="presenterrEdit" id="presenterrMsgEdit" />
+														</h:panelGroup>
+														<h:outputText value="No Presenter " />
+														<p:selectBooleanCheckbox
+															value="#{createMeeting.noPresenterEdit}">
+														</p:selectBooleanCheckbox>
+													</div>
+													<div class="ui-g-6" />
+												</div>
+											</p:tab>
+
+											<p:tab title="External Entity" id="externalTabTedit">
+												<p:tabView id="innerMainTabTedit" activeIndex="1">
+													<p:tab title="Contacts">
+														<div class="ui-g ">
+															<div class="ui-g-6">
+																<h:panelGroup styleClass="md-inputfield"
+																	style="margin-top:20px;margin-bottom:20px;">
+																	<p:autoComplete id="presenterrEdit" dropdown="true"
+																		label="Presenter"
+																		value="#{createMeeting.presenterInt}"
+																		completeMethod="#{createMeeting.completeInstitutions}">
+																	</p:autoComplete>
+																	<label> Search email,names,... *</label>
+																	<p:message for="presenterrEdit" id="presenterrMsgEdit" />
+																</h:panelGroup>
+															</div>
+															<div class="ui-g-6" />
+														</div>
+													</p:tab>
+													<p:tab title="New Contact" id="contactTabTedit">
+														<p:growl id="newGrowlTedit" showDetail="true" />
+														<div class="ui-g ui-fluid">
+															<p:panelGrid columns="3" layout="grid" id="panelGridEdit"
+																styleClass="ui-panelgrid-blank form-group">
+																<h:panelGroup styleClass="md-inputfield">
+																	<p:inputText value="#{createMeeting.institution.name}" />
+																	<label>Names</label>
+																</h:panelGroup>
+																<h:panelGroup styleClass="md-inputfield">
+																	<p:inputText value="#{createMeeting.institution.email}" />
+																	<label>Email</label>
+																</h:panelGroup>
+																<h:panelGroup styleClass="md-inputfield">
+																	<p:inputText
+																		value="#{createMeeting.institution.phoneNumber}" />
+																	<label>Phone</label>
+																</h:panelGroup>
+																<h:panelGroup styleClass="md-inputfield">
+																	<p:inputText
+																		value="#{createMeeting.institution.institutionName}" />
+																	<label>Institution</label>
+																</h:panelGroup>
+																<h:panelGroup styleClass="md-inputfield">
+																	<p:inputText
+																		value="#{createMeeting.institution.position}" />
+																	<label>Position</label>
+																</h:panelGroup>
+																<p:commandButton icon="fa fa-plus" value="Add new"
+																	process="contactTabTedit"
+																	update=":agendaForm:mainTabTedit:innerMainTabTedit"
+																	action="#{createMeeting.createExternalEntity()}" />
+															</p:panelGrid>
+														</div>
+													</p:tab>
+												</p:tabView>
+											</p:tab>
+										</p:tabView>
+									</div>
+								</div>
+
+								<p:commandButton style="float:right;" icon="fa fa-save"
+									process="addTopicDlgEdit"
+									action="#{createMeeting.editTopic(createMeeting.topic)}"
+									onclick="PF('dlgTopic').hide()" update="agendaPanel agendaForm">
+									<p:confirm header="Confirmation" message="Are you sure?"
+										icon="ui-icon-warning" />
+								</p:commandButton>
+
+								<p:confirmDialog global="true" showEffect="fade"
+									hideEffect="fade" width="250">
+									<p:commandButton value="Yes" type="button"
+										styleClass="ui-confirmdialog-yes GreenButton"
+										icon="ui-icon-check" />
+									<p:commandButton value="No" type="button"
+										styleClass="ui-confirmdialog-no RedButton"
+										icon="ui-icon-close" />
+								</p:confirmDialog>
+							</p:dialog>
+
+						</h:form>
+						<p:ajaxStatus style="display:block;margin-bottom:2em;">
+							<f:facet name="start">
+								<p:graphicImage name="/ultima-layout/images/ajax-loader.gif" />
+							</f:facet>
+						</p:ajaxStatus>
+						<p:ajaxStatus onstart="PF('statusDialog').show()"
+							onsuccess="PF('statusDialog').hide()" />
+
+						<p:dialog widgetVar="statusDialog" modal="true" draggable="false"
+							closable="false" resizable="false" showHeader="false">
+							<p:graphicImage name="/ultima-layout/images/ajax-loader.gif" />
+						</p:dialog>
+					</p:panel>
+				</div>
+			</div>
+		</div>
+	</ui:define>
+</ui:composition>

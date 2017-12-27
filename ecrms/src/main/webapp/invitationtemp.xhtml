@@ -1,0 +1,24 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="content">
+		<div class="card">
+			<div class="ui-g">
+				<div class="ui-g-12 ui-md-6 ui-lg-12">
+					<p:graphicImage url="/resources/ultima-layout/images/logo-OPM.png"
+						style="width:100%;" />
+				</div>
+			</div>
+			<p:separator />
+			<h:form enctype="multipart/form-data" id="form">
+				<p:growl id="messages" showDetail="true" />
+				<p:fileUpload fileUploadListener="#{fileUploadView.upload}"
+					mode="advanced" dragDropSupport="false" multiple="true"
+					style="width:100%" update="form" />
+			</h:form>
+		</div>
+	</ui:define>
+</ui:composition>

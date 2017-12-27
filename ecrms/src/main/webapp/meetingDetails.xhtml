@@ -1,0 +1,164 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="content">
+		<style type="text/css">
+.cars-datalist .text-column p:last-child {
+	color: #757575;
+}
+
+.cars-datalist .car-item i, .cars-datalist .car-item .car-details {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.cars-datalist .car-item button {
+	float: right;
+}
+
+.cars-datalist ul {
+	margin: 0;
+	padding: 0;
+}
+
+.ui-car-display td:last-child {
+	font-weight: 700;
+}
+
+@media ( max-width :640px) {
+	.cars-datalist .text-column {
+		text-align: center;
+	}
+}
+</style>
+		<script type="text/javascript">
+        $(function() {
+            $('#menu-button').on('click', function(e) {
+                var menu = $('#menu');
+                if(menu.hasClass('lmenu-active')) {
+                    menu.addClass('fadeOutUp');
+                    
+                    setTimeout(function() {
+                        menu.removeClass('fadeOutUp fadeInDown lmenu-active');
+                    },500);
+                }
+                else {
+                    menu.addClass('lmenu-active fadeInDown');
+                }
+                e.preventDefault();
+            });
+        });
+        </script>
+
+		<h:body styleClass="landing-body">
+			<h:form id="meetingdetailsform">
+				<div class="landing-wrapper">
+					<p:breadCrumb style="margin-bottom:10px;">
+						<p:menuitem value="Dashboard" url="dashboard.xhtml" />
+						<p:menuitem value="Meetings" url="meetings.xhtml" />
+						<p:menuitem value="Meeting details" url="meetingDetails.xhtml" />
+					</p:breadCrumb>
+					<div class="card" style="backgroun-color: gray;">
+						<div class="ui-g">
+							<div class="ui-g-12">
+
+								<div id="features" style="margin-top: 0;">
+									<div class="ui-g">
+										<div class="ui-g-12 ui-md-3">
+											<h3>Topics</h3>
+											<div class="feature-icon">
+												<p:commandLink ajax="false" process="meetingdetailsform"
+													action="#{createMeeting.getMeetingObject(meetingsBean.selectedMeeting)}">
+													<i class="fa fa-calendar" />
+												</p:commandLink>
+											</div>
+										</div>
+
+										<div class="ui-g-12 ui-md-3">
+											<h3>Add Resolutions</h3>
+											<div class="feature-icon">
+												<p:commandLink ajax="false" process="meetingdetailsform"
+													action="#{meetingMinutes.getMeetingObject(meetingsBean.selectedMeeting)}">
+													<i class="fa fa-book" />
+												</p:commandLink>
+											</div>
+										</div>
+										<div class="ui-g-12 ui-md-3">
+											<h3>
+												Pre-Meeting tasks[
+												<h:outputLabel value="#{meetingsBean.pendingTasks()}"
+													style="color:#ff6600;font-weight:bold;" />
+												]
+											</h3>
+											<div class="feature-icon">
+												<p:commandLink ajax="false" process="meetingdetailsform"
+													action="#{preMeetingTasks.getMeetingObject(meetingsBean.selectedMeeting)}">
+													<i class="fa fa-list-ol" />
+												</p:commandLink>
+											</div>
+										</div>
+										<div class="ui-g-12 ui-md-3">
+											<h3>
+												Executions[
+												<h:outputLabel value="#{meetingsBean.pendingExecutions()}"
+													style="color:#ff6600;font-weight:bold;" />
+												]
+											</h3>
+											<div class="feature-icon">
+												<p:commandLink ajax="false" process="meetingdetailsform"
+													action="#{executionBean.getMeetingObject(meetingsBean.selectedMeeting)}">
+													<i class="fa fa-tasks" />
+												</p:commandLink>
+											</div>
+										</div>
+										<div class="ui-g-12 ui-md-3">
+											<h3>Minutes</h3>
+											<div class="feature-icon">
+												<p:commandLink ajax="false" process="meetingdetailsform"
+													action="#{meetingReview.getMeetingObject(meetingsBean.selectedMeeting)}">
+													<i class="fa fa-clock-o" />
+												</p:commandLink>
+											</div>
+
+										</div>
+										<div class="ui-g-12 ui-md-3">
+											<h3>Attendance</h3>
+											<div class="feature-icon">
+												<p:commandLink ajax="false" process="meetingdetailsform"
+													action="#{attendance.getMeetingObject(meetingsBean.selectedMeeting)}">
+													<i class="fa fa-check-square" />
+													<f:ajax execute="@form" render=":attendanceForm" />
+												</p:commandLink>
+											</div>
+										</div>
+										<div class="ui-g-12 ui-md-3">
+											<h3>Meeting Cost</h3>
+											<div class="feature-icon">
+												<p:commandLink ajax="false" process="meetingdetailsform"
+													action="#{meetingCostBean.getMeetingObject(meetingsBean.selectedMeeting)}">
+													<i class="fa fa-money" />
+												</p:commandLink>
+											</div>
+										</div>
+										<div class="ui-g-12 ui-md-3">
+											<h3>Statistics</h3>
+											<div class="feature-icon">
+												<p:commandLink ajax="false" process="meetingdetailsform"
+													action="meetingdashboard">
+													<i class="fa fa-bar-chart-o" />
+												</p:commandLink>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</h:form>
+		</h:body>
+	</ui:define>
+</ui:composition>

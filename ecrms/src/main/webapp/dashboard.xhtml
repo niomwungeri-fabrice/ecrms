@@ -1,0 +1,320 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Dashboard</ui:define>
+
+	<ui:define name="head">
+
+		<script type="text/javascript">
+               //<![CDATA[
+               function skinChart() {
+                   this.cfg.shadow = false;
+                   this.cfg.title = '';
+                   this.cfg.seriesColors = ['#FFC107', '#03A9F4'];
+                   this.cfg.grid = {
+                       background: '#ffffff',
+                       borderColor: '#ffffff',
+                       gridLineColor: '#EEEEEE',
+                       shadow: false
+                   };
+                   this.cfg.axesDefaults = {
+                       rendererOptions: {
+                           textColor: '#212121'
+                       }
+                   };
+                   this.cfg.seriesDefaults = {
+                       shadow: false,
+                       lineWidth: 1,
+                       markerOptions: {
+                           shadow: false,
+                           size: 7,
+                           style: 'circle'
+                       }
+                   }
+               }
+               //]]>  
+           </script>
+		<style type="text/css">
+.main-content {
+	padding: 0;
+}
+
+.meeting-datalist .text-column p:last-child {
+	color: #757575;
+}
+
+.meeting-datalist .meeting-item i, .meeting-datalist .meeting-item .meeting-details
+	{
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.meeting-datalist .meeting-item button {
+	float: right;
+}
+
+.meeting-datalist ul {
+	margin: 0;
+	padding: 0;
+}
+
+.ui-meeting-display td:last-child {
+	font-weight: 700;
+}
+
+@media ( max-width :640px) {
+	.meeting-datalist .text-column {
+		text-align: center;
+	}
+}
+</style>
+	</ui:define>
+
+	<ui:define name="content">
+		<div class="card">
+			<div class="ui-g">
+				<div class="ui-g-12">
+					<h:form id="form">
+						<f:metadata>
+							<f:viewParam name="meetingId" value="#{meetingReview.meetingId}" />
+							<f:viewParam name="meetingId"
+								value="#{meetingCostBean.meetingId}" />
+							<f:viewParam name="meetingId" value="#{meetingsBean.meetingId}" />
+							<f:viewParam name="to" value="#{meetingReview.username}" />
+							<f:viewParam name="to" value="#{loginBean.username}" />
+						</f:metadata>
+						<div class="ui-g dashboard">
+							<div class="ui-g-12 ui-md-6 ui-lg-4">
+								<div class="ui-g card colorbox colorbox-2">
+									<div class="ui-g-4">
+										<i class="fa fa-spinner" />
+									</div>
+									<div class="ui-g-8">
+										<span class="colorbox-name">Pending</span> <span
+											class="colorbox-count">#{loginBean.countMyPendings()}</span>
+									</div>
+								</div>
+							</div>
+							<div class="ui-g-12 ui-md-6 ui-lg-4">
+								<div class="ui-g card colorbox colorbox-1">
+									<div class="ui-g-4">
+										<i class="material-icons">&#xE86C;</i>
+									</div>
+									<div class="ui-g-8">
+										<span class="colorbox-name">Approved</span> <span
+											class="colorbox-count">#{loginBean.countMyAccepted()}</span>
+									</div>
+								</div>
+							</div>
+							<div class="ui-g-12 ui-md-6 ui-lg-4">
+								<div class="ui-g card colorbox colorbox-4">
+									<div class="ui-g-4">
+										<i class="material-icons">&#xE3BE;</i>
+									</div>
+									<div class="ui-g-8">
+										<span class="colorbox-name">In Progress</span> <span
+											class="colorbox-count">#{loginBean.countMyInProgress()}</span>
+									</div>
+								</div>
+							</div>
+
+							<div class="ui-g-12 ui-md-6 ui-lg-4">
+								<div class="ui-g card colorbox colorbox-2">
+									<div class="ui-g-4">
+										<i class="fa fa-rotate-right" />
+									</div>
+									<div class="ui-g-8">
+										<span class="colorbox-name">Rejected</span> <span
+											class="colorbox-count">#{loginBean.countMyRejections()}</span>
+									</div>
+								</div>
+							</div>
+							<div class="ui-g-12 ui-md-6 ui-lg-4">
+								<div class="ui-g card colorbox colorbox-3">
+									<div class="ui-g-4">
+										<i class="material-icons">&#xE8E9;</i>
+									</div>
+									<div class="ui-g-8">
+										<span class="colorbox-name">Submitted</span> <span
+											class="colorbox-count">#{loginBean.countMySubmission()}</span>
+									</div>
+								</div>
+							</div>
+							<div class="ui-g-12 ui-md-6 ui-lg-4">
+								<div class="ui-g card colorbox colorbox-5">
+									<div class="ui-g-4">
+										<i class="material-icons">&#xE0BE;</i>
+									</div>
+									<div class="ui-g-8">
+										<span class="colorbox-name">Total Executions</span> <span
+											class="colorbox-count">#{loginBean.executionsPerUser().size()}</span>
+									</div>
+								</div>
+							</div>
+
+							<p:repeat var="meeting" value="#{loginBean.todaysMeeting()}">
+
+								<div class="ui-g-12">
+									<div class="ui-g card colorbox colorbox-5">
+										<div class="ui-g-4">
+											<i class="material-icons">&#xE7FB;</i>
+										</div>
+										<div class="ui-g-8">
+											<span class="colorbox-name">Title: #{meeting.title}<p:separator />
+											</span> <span class="colorbox-count-5">#{loginBean.customeDate(meeting.startTime)}
+												- #{loginBean.customeDate(meeting.endTime)} @
+												#{meeting.location} </span>
+										</div>
+									</div>
+								</div>
+							</p:repeat>
+						</div>
+						<p:tabView id="mainTab">
+							<p:tab
+								title="Upcoming Meetings[#{meetingReview.future().size()}]">
+								<p:dataList style="margin-top:15px;"
+									value="#{meetingReview.future()}" var="future" type="unordered"
+									itemType="none" paginator="true" rows="7"
+									emptyMessage="No Upcoming Meetings"
+									styleClass="meeting-datalist">
+
+									<div style="border-bottom: 1px solid #bdbdbd"
+										class="clearfix meeting-item">
+										<i class="material-icons"
+											style="font-size: 48px; color: #757575; margin: 24px;">
+											&#xE7FB; </i>
+										<div class="meeting-details">
+											<h2>#{future.title}</h2>
+											<p>Date:#{meetingReview.customeDate(future.startTime)}</p>
+											<p style="color: #757575">#{meetingReview.convertToTime(future.startTime)}
+												- #{meetingReview.convertToTime(future.endTime)}</p>
+										</div>
+										<p:commandButton value="View details"
+											update=":form:mainTab:meettingDetail"
+											action="#{meetingReview.getMeetingObj(future)}"
+											oncomplete="PF('futureDlg').show()" title="View Detail"
+											icon="fa fa-search" style="margin:24px 24px 0 0">
+										</p:commandButton>
+									</div>
+								</p:dataList>
+
+								<p:dialog header="Meeting Details" widgetVar="futureDlg"
+									id="futureDlgId" responsive="true" modal="true"
+									showEffect="blind" resizable="true">
+									<p:growl showDetail="true" id="growl" />
+									<p:outputPanel id="meettingDetail">
+
+										<h1 style="text-align: center;">Title:#{meetingReview.selectedMeeting.title}</h1>
+										<p:panelGrid columns="2">
+											<h:outputText value="Type:"
+												style="font-weight:bold;float:right;" />
+								#{meetingReview.selectedMeeting.meetingType.name}
+
+								<h:outputText value="Purpose:"
+												style="font-weight:bold;float:right;" />
+								#{meetingReview.selectedMeeting.purpose}
+
+								<h:outputText value="Location:"
+												style="font-weight:bold;float:right;" />
+								#{meetingReview.selectedMeeting.location}
+
+								<h:outputText value="Date:"
+												style="font-weight:bold;float:right;" />
+								#{createMeeting.customeDate(meetingReview.selectedMeeting.startTime)}
+
+								<h:outputText value="Time:"
+												style="font-weight:bold;float:right;" />
+								#{createMeeting.convertToTime(meetingReview.selectedMeeting.startTime)} - #{createMeeting.convertToTime(meetingReview.selectedMeeting.endTime)}
+
+								<h:outputText value="Organized By:"
+												style="font-weight:bold;float:right;" />
+											<p:outputLabel
+												value="#{meetingReview.organizer.employee.firstName} #{meetingReview.organizer.employee.lastName}" />
+										</p:panelGrid>
+									</p:outputPanel>
+									<div class="ui-g">
+										<p:commandButton value="Going" process="@this"
+											icon="fa fa-thumbs-o-up" oncomplete="PF('futureDlg').hide()"
+											action="#{meetingReview.confirmEmployeeAttendance()}"
+											update="growl" style="margin-top:7px;" />
+
+										<p:commandButton value="Not Going" styleClass="red-btn"
+											oncomplete="PF('reasonDlg').show()"
+											style="margin-top:7px;margin-left:10px;"
+											icon="fa fa-thumbs-o-down" />
+									</div>
+								</p:dialog>
+								<p:dialog width="400" modal="true" widgetVar="reasonDlg"
+									id="reasonDlgId" header="Reason?">
+									<div class="ui-g ui-fluid">
+										<div class="ui-g-12">
+											<h:panelGroup styleClass="md-inputfield"
+												style="margin-top:15px;">
+												<p:inputTextarea label="Reason"
+													value="#{meetingReview.reason}" />
+												<label>Reason</label>
+											</h:panelGroup>
+										</div>
+									</div>
+									<p:commandButton value="Continue" process="reasonDlgId"
+										oncomplete="PF('reasonDlg').hide()" update="growl"
+										action="#{meetingReview.cancelEmployeeAttendance()}" />
+								</p:dialog>
+							</p:tab>
+							<p:tab title="Past Meetings[#{meetingReview.past().size()}]">
+								<p:spacer />
+
+								<p:dataTable value="#{meetingReview.past()}" var="m"
+									tableStyle="width: auto;" id="meetingTable"
+									widgetVar="widgetTable"
+									filteredValue="#{meetingsBean.filteredMeetings}" rows="10"
+									paginator="true">
+
+									<f:facet name="header">
+										<p:outputPanel style="text-align:right;">
+											<h:outputText value="Search" />
+											<p:inputText id="globalFilter"
+												onkeyup="PF('widgetTable').filter()" style="width:180px" />
+										</p:outputPanel>
+									</f:facet>
+
+									<p:column headerText="Title" filterMatchMode="contains"
+										filterBy="#{m.title}" filterStyle="display:none">
+						#{m.title}
+							</p:column>
+									<p:column headerText="Purpose" filterMatchMode="contains"
+										filterBy="#{m.title}" filterStyle="display:none">
+						#{m.purpose}
+							</p:column>
+									<p:column headerText="Start date" filterMatchMode="contains"
+										sortBy="#{m.startTime}" filterBy="#{m.title}"
+										filterStyle="display:none">
+						#{meetingsBean.convertToTime(m.startTime)}
+							</p:column>
+									<p:column headerText="End date" filterMatchMode="contains"
+										filterBy="#{m.title}" filterStyle="display:none">
+						#{meetingsBean.convertToTime(m.endTime)}
+							</p:column>
+									<p:column headerText="Actions">
+										<center>
+											<p:commandLink action="#{meetingReview.getMeetingObject(m)}"
+												process="@this" ajax="false">
+												<i class="fa fa-clock-o"> Minutes</i>
+											</p:commandLink>
+										</center>
+									</p:column>
+								</p:dataTable>
+
+							</p:tab>
+						</p:tabView>
+					</h:form>
+				</div>
+			</div>
+		</div>
+
+	</ui:define>
+
+</ui:composition>

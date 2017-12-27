@@ -1,0 +1,201 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pu="http://primefaces.org/ultima"
+	template="/WEB-INF/template.xhtml">
+
+	<ui:define name="content">
+		<script type="text/javascript">
+function start() {
+    PF('statusDialog').show();
+}
+ 
+function stop() {
+    PF('statusDialog').hide();
+}
+</script>
+		<h:form id="form">
+			<p:breadCrumb style="margin-bottom:10px;">
+				<p:menuitem value="Dashboard" url="dashboard.xhtml" />
+				<p:menuitem value="Meetings" url="meetings.xhtml" />
+			</p:breadCrumb>
+			<div class="card">
+				<p:growl showDetail="true" id="growl" />
+
+
+				<p:commandButton value="Add Meeting" icon="fa fa-plus"
+					disabled="#{loginBean.disableScheduling}"
+					style="margin-bottom:10px;" ajax="false" action="meeting" />
+
+
+				<p:dataTable value="#{meetingsBean.myMeetings()}" var="m"
+					id="meetingTable" widgetVar="widgetTable"
+					filteredValue="#{meetingsBean.filteredMeetings}" rows="10"
+					paginator="true">
+
+					<f:facet name="header">
+						<p:outputPanel style="text-align:right;">
+							<h:outputText value="Search" />
+							<p:inputText id="globalFilter"
+								onkeyup="PF('widgetTable').filter()" style="width:180px" />
+						</p:outputPanel>
+					</f:facet>
+
+					<p:column headerText="Title" filterMatchMode="contains"
+						filterBy="#{m.title}" filterStyle="display:none">
+						#{m.title}
+					</p:column>
+					<p:column headerText="Purpose" filterMatchMode="contains"
+						filterBy="#{m.title}" filterStyle="display:none">
+						#{m.purpose}
+					</p:column>
+					<p:column headerText="Start date" filterMatchMode="contains"
+						sortBy="#{m.startTime}" style="width: 140px;"
+						filterBy="#{m.title}" filterStyle="display:none">
+						#{meetingsBean.convertToTime(m.startTime)}
+					</p:column>
+					<p:column headerText="End date" filterMatchMode="contains"
+						style="width: 140px;" filterBy="#{m.title}"
+						filterStyle="display:none">
+						#{meetingsBean.convertToTime(m.endTime)}
+					</p:column>
+					<p:column headerText="Actions" style="width: 50px;">
+						<center>
+							<p:commandLink title="Edit"
+								disabled="#{meetingsBean.disableEdit}"
+								oncomplete="PF('editMeetingDialog').show()"
+								update="@widgetVar(editMeetingDialog)" process="@this"
+								action="#{createMeeting.getMeetingObj(m)}">
+								<i class="fa fa-edit" style="font-weight: bold;" />
+							</p:commandLink>
+
+							<p:commandLink title="Options" style="margin-left:15px;"
+								process="@this" action="#{meetingsBean.getMeetingObject(m)}"
+								ajax="false">
+								<i class="fa fa-reorder" style="font-weight: bold;" />
+							</p:commandLink>
+							<p:dialog id="editMeetingDialogId" header="Meeting Information"
+								modal="true" width="400" widgetVar="editMeetingDialog"
+								resizable="false" draggable="false" responsive="true"
+								hideEffect="scale">
+								<div class="ui-fluid">
+									<p:outputPanel id="editEventDetails">
+										<div class="ui-g form-group">
+											<div class="ui-g-12">
+												<h:panelGroup styleClass="md-inputfield">
+													<p:inputText id="emTitle" label="Title"
+														value="#{createMeeting.meeting.title}" />
+													<p:ajax event="keydown" update="emTitleMsg" />
+													<label>Title</label>
+													<p:message for="emTitle" id="emTitleMsg"
+														style="float:left;" />
+												</h:panelGroup>
+											</div>
+											<div class="ui-g-12">
+												<p:selectOneMenu label="Meeting Type" rendered="true"
+													id="emType" value="#{createMeeting.selectedType}">
+													<f:selectItem itemLabel="Meeting Type *" />
+													<f:selectItems value="#{createMeeting.findMType()}" var="m"
+														itemLabel="#{m.name}" itemValue="#{m.id}" />
+												</p:selectOneMenu>
+												<p:message for="emType" />
+											</div>
+											<div class="ui-g-12">
+												<h:panelGroup styleClass="md-inputfield">
+													<p:inputTextarea value="#{createMeeting.meeting.purpose}"
+														label="Purpose" id="emPurpose">
+														<p:ajax event="keydown" update="emPurposeMsg" />
+													</p:inputTextarea>
+													<label>Purpose</label>
+													<p:message for="emPurpose" id="emPurposeMsg"
+														style="float:left;" />
+												</h:panelGroup>
+											</div>
+											<div class="ui-g-12">
+												<h:panelGroup styleClass="md-inputfield">
+													<p:inputText value="#{createMeeting.meeting.location}"
+														id="emLocation" label="Location">
+														<p:ajax event="keydown" update="emLocationMsg" />
+													</p:inputText>
+													<label>Location</label>
+													<p:message for="emLocation" id="emLocationMsg"
+														style="float:left;" />
+												</h:panelGroup>
+											</div>
+										</div>
+										<p:panelGrid columns="2" layout="grid"
+											styleClass="ui-panelgrid-blank form-group">
+											<h:panelGroup styleClass="md-inputfield">
+												<p:calendar pattern="dd/MM/yyyy HH:mm" id="emStart"
+													mindate="#{createMeeting.today}" disabledWeekends="true"
+													value="#{createMeeting.meeting.startTime}" />
+												<p:ajax event="keydown" update="emStartMsg" />
+												<label>Start Date</label>
+												<p:message for="emStart" id="emStartMsg" style="float:left;" />
+											</h:panelGroup>
+
+											<h:panelGroup styleClass="md-inputfield">
+												<p:calendar pattern="dd/MM/yyyy HH:mm" id="emEnd"
+													mindate="#{createMeeting.today}" disabledWeekends="true"
+													value="#{createMeeting.meeting.endTime}" />
+												<p:ajax event="keydown" update="emEndMsg" />
+												<label>End Date</label>
+											</h:panelGroup>
+											<p:message for="emEnd" id="emEndMsg" style="float:left;" />
+										</p:panelGrid>
+
+										<div class="ui-g-12">
+											<h:panelGroup styleClass="md-inputfield">
+												<p:autoComplete dropdown="true" id="eorganizer"
+													value="#{createMeeting.orginizer}" label="Organizer"
+													maxResults="10"
+													completeMethod="#{createMeeting.completeEmployee}">
+													<p:ajax event="keydown" update="eorganizerMsg" />
+												</p:autoComplete>
+												<label> Meeting Called By *</label>
+												<p:message for="eorganizer" id="eorganizerMsg"
+													style="float:left;" />
+											</h:panelGroup>
+										</div>
+									</p:outputPanel>
+								</div>
+								<p:separator />
+								<p:commandButton style="float:right;" icon="fa fa-save"
+									id="editMeetingId" process="editMeetingDialogId"
+									action="#{createMeeting.editMeetingDetails()}"
+									update=":form:meetingTable :form:growl"
+									oncomplete="PF('editMeetingDialog').hide() ">
+									<p:confirm header="Confirmation" message="Are you sure?"
+										icon="ui-icon-warning" />
+								</p:commandButton>
+								<p:tooltip for="editMeetingId"
+									value="Update Meeting Information" position="top" />
+
+								<p:confirmDialog global="true" showEffect="fade"
+									hideEffect="fade" width="250">
+									<p:commandButton value="Yes" type="button"
+										styleClass="ui-confirmdialog-yes GreenButton"
+										icon="ui-icon-check" />
+									<p:commandButton value="No" type="button"
+										styleClass="ui-confirmdialog-no RedButton"
+										icon="ui-icon-close" />
+								</p:confirmDialog>
+
+								<p:commandButton title="Cancel" process="@this"
+									onclick="PF('editMeetingDialog').hide()"
+									style="float:right;background-color:red;margin-right:10px;"
+									icon="fa fa-remove" />
+								<p:commandButton title="Cancel" process="@this"
+									onclick="PF('editMeetingDialog').hide()"
+									style="float:right;background-color:gray;margin-right:10px;"
+									icon="fa fa-remove" />
+							</p:dialog>
+						</center>
+					</p:column>
+				</p:dataTable>
+			</div>
+		</h:form>
+	</ui:define>
+</ui:composition>

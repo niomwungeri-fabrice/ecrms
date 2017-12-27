@@ -1,0 +1,227 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pu="http://primefaces.org/ultima"
+	template="/WEB-INF/template.xhtml">
+
+	<ui:define name="content">
+		<script type="text/javascript">
+        function skinChart() {
+            this.cfg.shadow = false;
+            this.cfg.title = '';
+            this.cfg.seriesColors = ['#03A9F4', '#E91E63', '#4CAF50', '#FFC107'];
+            this.cfg.grid = {
+                background: '#ffffff',
+                borderColor: '#ffffff',
+                gridLineColor: '#F5F5F5',
+                shadow: false
+            };
+            this.cfg.axesDefaults = {
+                borderWidth: 0.1,
+                borderColor: 'bdbdbd',
+                rendererOptions: {
+                    textColor: '#666F77'
+                }
+            };
+            this.cfg.seriesDefaults = {
+                shadow: false,
+                lineWidth: 1,
+                markerOptions: {
+                    shadow: false,
+                    size: 7,
+                    style: 'circle'
+                }
+            }
+        }
+
+        function skinBar() {
+            this.cfg.shadow = false;
+            this.cfg.title = '';
+            this.cfg.seriesColors = ['#4CAF50', '#FFC107'];
+            this.cfg.grid = {
+                background: '#ffffff',
+                borderColor: '#ffffff',
+                gridLineColor: '#F5F5F5',
+                shadow: false
+            };
+            this.cfg.axesDefaults = {
+                borderWidth: 0.1,
+                borderColor: 'bdbdbd',
+                rendererOptions: {
+                    textColor: '#666F77'
+                }
+            };
+            this.cfg.seriesDefaults = {
+                shadow: false,
+                lineWidth: 1,
+                renderer: $.jqplot.BarRenderer,
+                markerOptions: {
+                    shadow: false,
+                    size: 7,
+                    style: 'circle'
+                }
+            }
+        }
+
+        function skinPie() {
+            this.cfg.shadow = false;
+            this.cfg.title = '';
+            this.cfg.seriesColors = ['#03A9F4', '#E91E63', '#4CAF50', '#FFC107'];
+            this.cfg.grid = {
+                background: '#ffffff',
+                borderColor: '#ffffff',
+                gridLineColor: '#F5F5F5',
+                shadow: false
+            };
+            this.cfg.axesDefaults = {
+                rendererOptions: {
+                    textColor: '#666F77',
+                }
+            };
+            this.cfg.seriesDefaults = {
+                renderer: $.jqplot.PieRenderer,
+                shadow: false,
+                lineWidth: 1,
+                markerOptions: {
+                    shadow: false,
+                    size: 7,
+                    style: 'circle'
+                }
+            }
+        }
+        </script>
+
+		<style type="text/css">
+.jqplot-xaxis-label, .jqplot-yaxis-label, .jqplot-y2axis-label,
+	.jqplot-x2axis-label {
+	color: #757575;
+}
+
+table.jqplot-table-legend {
+	background-color: #ffffff;
+	color: #757575;
+	border-color: #bdbdbd;
+}
+
+.cars-datalist .text-column p:last-child {
+	color: #757575;
+}
+
+.cars-datalist .car-item i, .cars-datalist .car-item .car-details {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.cars-datalist .car-item button {
+	float: right;
+}
+
+.cars-datalist ul {
+	margin: 0;
+	padding: 0;
+}
+
+.ui-car-display td:last-child {
+	font-weight: 700;
+}
+
+@media ( max-width :640px) {
+	.cars-datalist .text-column {
+		text-align: center;
+	}
+}
+</style>
+		<p:breadCrumb style="margin-bottom:10px;">
+			<p:menuitem value="Dashboard" url="dashboard.xhtml" />
+			<p:menuitem value="Meetings" url="meetings.xhtml" />
+			<p:menuitem value="Meeting details" url="meetingDetails.xhtml" />
+			<p:menuitem value="Meeting Dashboard" url="meetingdashboard.xhtml" />
+		</p:breadCrumb>
+		<div class="card">
+			<h:form id="statisticsForm">
+				<div class="ui-g">
+					<div class="ui-g-12">
+						<p:dataTable value="#{statisticBean.findAllMeeting()}" var="m"
+							id="meetingTable" widgetVar="widgetTable"
+							filteredValue="#{meetingsBean.filteredMeetings}" rows="2"
+							paginator="true">
+
+							<f:facet name="header">
+								<p:outputPanel style="text-align:right;">
+									<h:outputText value="Search" />
+									<p:inputText id="globalFilter"
+										onkeyup="PF('widgetTable').filter()" style="width:180px" />
+								</p:outputPanel>
+							</f:facet>
+
+							<p:column headerText="Title" filterMatchMode="contains"
+								filterBy="#{m.title}" filterStyle="display:none">
+								#{m.title}
+							</p:column>
+							<p:column headerText="Purpose" filterMatchMode="contains"
+								filterBy="#{m.title}"
+								filterStyle="display:none">
+								#{m.purpose}
+							</p:column>
+							<p:column headerText="Start date" filterMatchMode="contains"
+								style="width: 140px;" sortBy="#{m.startTime}"
+								filterBy="#{m.title}" filterStyle="display:none">
+								#{meetingsBean.convertToTime(m.startTime)}
+							</p:column>
+							<p:column style="width: 140px;" headerText="End date" filterMatchMode="contains"
+								filterBy="#{m.title}" filterStyle="display:none">
+								#{meetingsBean.convertToTime(m.endTime)}
+							</p:column>
+							<p:column headerText="View stats" style="width: 50px;">
+								<center>
+									<p:commandButton title="View Details" icon="fa fa-arrow-circle-o-down"
+										process="@this">
+										<p:ajax listener="#{statisticBean.changeChart(m)}"
+											update=":statisticsForm:mainTab:bar :statisticsForm:mainTab:barEmployee" />
+									</p:commandButton>
+								</center>
+							</p:column>
+						</p:dataTable>
+						<p:spacer />
+						<div class="ui-g">
+							<div class="ui-g-12">
+								<p:tabView id="mainTab">
+									<p:tab title="Executions">
+										<p:chart type="bar" model="#{statisticBean.barModel}"
+											style="height:300px" id="bar" responsive="true" />
+									</p:tab>
+									<p:tab title="Employees">
+										<div class="ui-g">
+											<div class="ui-g-11" />
+											<div class="ui-g-1">
+												<p:selectOneMenu value="#{statisticBean.range}">
+													<f:selectItem itemLabel="1" itemValue="1" />
+													<f:selectItem itemLabel="2" itemValue="2" />
+													<f:selectItem itemLabel="3" itemValue="3" />
+													<f:selectItem itemLabel="4" itemValue="4" />
+													<f:selectItem itemLabel="5" itemValue="5" />
+													<f:selectItem itemLabel="6" itemValue="6" />
+													<f:selectItem itemLabel="7" itemValue="7" />
+													<f:selectItem itemLabel="8" itemValue="8" />
+													<f:selectItem itemLabel="9" itemValue="9" />
+													<f:selectItem itemLabel="10" itemValue="10" />
+													<p:ajax listener="#{statisticBean.empChartListner()}"
+														update=":statisticsForm:mainTab:barEmployee" />
+												</p:selectOneMenu>
+											</div>
+										</div>
+										<p:chart id="barEmployee" type="bar"
+											model="#{statisticBean.barModelEmployee}"
+											style="height:300px" responsive="true" />
+									</p:tab>
+								</p:tabView>
+							</div>
+						</div>
+					</div>
+				</div>
+			</h:form>
+		</div>
+	</ui:define>
+</ui:composition>

@@ -1,0 +1,723 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pu="http://primefaces.org/ultima"
+	template="/WEB-INF/template.xhtml">
+
+	<ui:define name="content">
+		<style type="text/css">
+.cars-datalist .text-column p:last-child {
+	color: #757575;
+}
+
+.cars-datalist .car-item i, .cars-datalist .car-item .car-details {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.cars-datalist .car-item button {
+	float: right;
+}
+
+.cars-datalist ul {
+	margin: 0;
+	padding: 0;
+}
+
+.ui-car-display td:last-child {
+	font-weight: 700;
+}
+
+@media ( max-width :640px) {
+	.cars-datalist .text-column {
+		text-align: center;
+	}
+}
+</style>
+		<p:breadCrumb style="margin-bottom:10px;">
+				<p:menuitem value="Dashboard" url="dashboard.xhtml" />
+				<p:menuitem value="Settings" url="settings.xhtml"/>
+			</p:breadCrumb>
+		<div class="card">
+			<div class="ui-g">
+				<p:tabView id="mainTab">
+					<p:tab title="General" id="empTab">
+						<div class="ui-g-12">
+							<p:panel header="Manage Employee" id="emPanel">
+								<h:form id="myform">
+									<p:growl id="growl" showDetail="true" />
+									<h:panelGroup styleClass="md-inputfield"
+										style="margin-bottom:10px;margin-top:10px;">
+										<p:inputText value="#{settings.keyWord}">
+											<p:ajax event="keydown"
+												listener="#{settings.employeeSearchListener()}"
+												update="eTable" />
+										</p:inputText>
+										<label>Search</label>
+									</h:panelGroup>
+									<p:dataTable id="eTable" var="e" tableStyle="width: auto;"
+										value="#{settings.employeeList()}" paginator="true" rows="10">
+										<f:facet name="header">
+
+											<div class="ui-g">
+												<div class="ui-g-10" />
+												<div class="ui-g-1">
+													<p:commandButton onclick="PF('dlgAdd').show();"
+														type="button" icon="fa fa-user-plus" />
+													<p:dialog id="dlgAddId" header="Employee Information"
+														modal="true" widgetVar="dlgAdd" resizable="false"
+														draggable="false" responsive="true" hideEffect="scale"
+														width="400">
+														<div class="ui-fluid">
+															<div class="ui-g form-group" style="margin-bottom: 16px;">
+																<div class="ui-g-12">
+																	<h:panelGroup styleClass="md-inputfield">
+																		<p:inputText value="#{settings.employee.firstName}" />
+																		<label>First name</label>
+																	</h:panelGroup>
+																</div>
+																<div class="ui-g-12">
+																	<h:panelGroup styleClass="md-inputfield">
+																		<p:inputText value="#{settings.employee.lastName}" />
+																		<label>Last name</label>
+																	</h:panelGroup>
+																</div>
+
+																<div class="ui-g-12">
+																	<h:panelGroup styleClass="md-inputfield">
+																		<p:inputText value="#{settings.employee.email}" />
+																		<label>Email</label>
+																	</h:panelGroup>
+																</div>
+																<div class="ui-g-12">
+
+																	<p:selectOneMenu id="gender" required="true"
+																		label="Gender" value="#{settings.employee.gender}"
+																		style="margin-bottom:10px;">
+																		<f:selectItem itemLabel="Gender" itemValue="" />
+																		<f:selectItem itemLabel="Male" itemValue="Male" />
+																		<f:selectItem itemLabel="Female" itemValue="Female" />
+																	</p:selectOneMenu>
+
+																</div>
+
+																<div class="ui-g-12">
+																	<h:panelGroup styleClass="md-inputfield">
+																		<p:inputText id="position"
+																			value="#{settings.employee.position}" required="true"
+																			label="Position" />
+																		<label>Position</label>
+																		<p:message for="position" />
+																	</h:panelGroup>
+																</div>
+															</div>
+														</div>
+														<p:separator />
+														<p:commandButton style="float:right;"
+															action="#{settings.create()}" icon="ui-icon-save"
+															update=":mainTab:myform:eTable :mainTab:myform:growl"
+															process="dlgAddId" onclick="PF('dlgAdd').hide()" />
+														<p:commandButton process="dlgAddId" title="Cancel"
+															onclick="PF('dlgAdd').hide()"
+															style="float:right;background-color:red;margin-right:10px;"
+															icon="fa fa-remove" />
+													</p:dialog>
+												</div>
+
+												<div class="ui-g-1">
+													<p:commandButton type="button" icon="ui-icon-print"
+														style="display:block;">
+														<p:printer target="eTable" />
+													</p:commandButton>
+												</div>
+											</div>
+
+										</f:facet>
+
+
+										<p:column headerText="First name" sortBy="#{e.firstName}">
+											<h:outputText value="#{e.firstName}" />
+										</p:column>
+										<p:column headerText="Last name" sortBy="#{e.lastName}">
+											<h:outputText value="#{e.lastName}" />
+										</p:column>
+										<p:column headerText="Email">
+											<h:outputText value="#{e.email}" />
+										</p:column>
+										<p:column headerText="Gender" sortBy="#{e.gender}">
+											<h:outputText value="#{e.gender}" />
+										</p:column>
+										<p:column headerText="Position" sortBy="#{e.position}">
+											<h:outputText value="#{e.position}" />
+										</p:column>
+
+										<p:column headerText="Active">
+											<center>
+												<p:inputSwitch value="#{e.state}">
+													<p:ajax listener="#{settings.activateEmployee(e)}"
+														update=":mainTab:myform:growl" />
+												</p:inputSwitch>
+											</center>
+										</p:column>
+
+										<p:column headerText="Actions">
+											<center>
+
+												<p:commandLink update="@widgetVar(dlgAddEdit)"
+													oncomplete="PF('dlgAddEdit').show()"
+													action="#{settings.getEmpObj(e)}" process="@this">
+													<i class="fa fa-pencil" />
+												</p:commandLink>
+
+												
+												<p:confirmDialog global="true" showEffect="fade"
+													hideEffect="fade" width="250">
+													<p:commandButton value="Yes"
+														styleClass="ui-confirmdialog-yes GreenButton"
+														icon="ui-icon-check" />
+													<p:commandButton value="No"
+														styleClass="ui-confirmdialog-no RedButton"
+														icon="ui-icon-close" />
+												</p:confirmDialog>
+
+
+												<div class="ui-fluid">
+													<p:dialog id="dlgAddIdEdit" modal="true"
+														header="Update Employee Information"
+														widgetVar="dlgAddEdit" resizable="false" draggable="false"
+														responsive="true" hideEffect="scale" width="400">
+
+														<div class="ui-g form-group" style="margin-bottom: 16px;">
+															<div class="ui-g-12">
+																<h:panelGroup styleClass="md-inputfield">
+																	<p:inputText value="#{settings.employee.firstName}" />
+																	<label>First name</label>
+																</h:panelGroup>
+															</div>
+															<div class="ui-g-12">
+																<h:panelGroup styleClass="md-inputfield">
+																	<p:inputText value="#{settings.employee.lastName}" />
+																	<label>Last name</label>
+																</h:panelGroup>
+															</div>
+
+															<div class="ui-g-12">
+																<h:panelGroup styleClass="md-inputfield">
+																	<p:inputText value="#{settings.employee.email}" />
+																	<label>Email</label>
+																</h:panelGroup>
+															</div>
+															<div class="ui-g-12">
+
+																<p:selectOneMenu required="true" label="Gender"
+																	value="#{settings.employee.gender}"
+																	style="margin-bottom:10px;">
+																	<f:selectItem itemLabel="Gender" itemValue="" />
+																	<f:selectItem itemLabel="Male" itemValue="Male" />
+																	<f:selectItem itemLabel="Female" itemValue="Female" />
+																</p:selectOneMenu>
+
+															</div>
+
+															<div class="ui-g-12">
+																<h:panelGroup styleClass="md-inputfield">
+																	<p:inputText value="#{settings.employee.position}"
+																		required="true" label="Position" />
+																	<label>Position</label>
+																</h:panelGroup>
+															</div>
+														</div>
+
+														<f:facet name="footer">
+															<p:commandButton value="Save" style="width:auto"
+																action="#{settings.editEmployee(settings.employee)}"
+																icon="ui-icon-save"
+																update=":mainTab:myform:eTable :mainTab:myform:growl"
+																process="dlgAddIdEdit" />
+														</f:facet>
+													</p:dialog>
+												</div>
+											</center>
+										</p:column>
+
+									</p:dataTable>
+
+								</h:form>
+							</p:panel>
+						</div>
+						<div class="ui-g-12 ui-lg-6">
+							<p:panel header="Roles" style="margin-top:10px;">
+								<h:panelGroup styleClass="md-inputfield"
+									style="margin-bottom:10px;">
+									<p:inputText>
+									</p:inputText>
+									<label>Search</label>
+								</h:panelGroup>
+								<h:form id="rolesForm">
+									<p:growl showDetail="true" />
+									<p:dataTable id="rolesTable" var="roles" style="width:100%;"
+										value="#{authorizationBean.allRoles()}" reflow="true" rows="5"
+										paginator="true">
+										<f:facet name="header">
+
+											<div class="ui-g">
+												<div class="ui-g-10" />
+												<div class="ui-g-1" />
+												<div class="ui-g-1">
+													<p:commandButton icon="ui-icon-plus" type="button"
+														onclick="PF('addRolesDlg').show()" />
+
+													<p:dialog id="addRolesDlgId" header="Roles Information"
+														modal="true" width="400" widgetVar="addRolesDlg"
+														resizable="false" draggable="false" responsive="true"
+														hideEffect="scale">
+														<div class="ui-fluid">
+															<div class="ui-g form-group" style="margin-bottom: 16px;">
+																<div class="ui-g-12">
+																	<h:panelGroup styleClass="md-inputfield">
+																		<p:inputText value="#{authorizationBean.role.name}" />
+																		<label>Name</label>
+																	</h:panelGroup>
+																</div>
+															</div>
+														</div>
+														<p:separator />
+														<p:commandButton value="Save"
+															style="width:auto;float:right;"
+															action="#{authorizationBean.createRole()}"
+															icon="ui-icon-save"
+															update=":mainTab:rolesForm:rolesTable :mainTab:myform:growl"
+															process="addRolesDlgId" />
+													</p:dialog>
+												</div>
+											</div>
+										</f:facet>
+										<p:column headerText="Name">
+											<h:outputText value="#{roles.name}" />
+										</p:column>
+
+
+										<p:column headerText="Actions">
+											<center>
+												<p:commandLink update="@widgetVar(dlgRolesEdit)"
+													oncomplete="PF('dlgRolesEdit').show()"
+													action="#{authorizationBean.getRoleObject(roles)}"
+													process="@this">
+													<i class="fa fa-pencil" />
+												</p:commandLink>
+
+												<p:commandLink style="margin-left:12px;color:red;"
+													action="#{authorizationBean.deleteRole(roles)}"
+													update=":mainTab:rolesForm:rolesTable :mainTab:myform:growl">
+													<p:confirm header="Confirmation"
+														message="Are you sure you want to delete '#{roles.name}' ?"
+														icon="ui-icon-warning" />
+													<i class="fa fa-trash" />
+												</p:commandLink>
+												<p:confirmDialog global="true" showEffect="fade"
+													hideEffect="fade" width="250">
+													<p:commandButton value="Yes"
+														styleClass="ui-confirmdialog-yes GreenButton"
+														icon="ui-icon-check" />
+													<p:commandButton value="No"
+														styleClass="ui-confirmdialog-no RedButton"
+														icon="ui-icon-close" />
+												</p:confirmDialog>
+
+												<p:dialog id="dlgRolesEditId"
+													header="Update External Entity Information" modal="true"
+													width="400" widgetVar="dlgRolesEdit" resizable="false"
+													draggable="false" responsive="true" hideEffect="scale">
+													<div class="ui-fluid">
+														<div class="ui-g form-group" style="margin-bottom: 16px;">
+															<div class="ui-g-12">
+																<h:panelGroup styleClass="md-inputfield">
+																	<p:inputText value="#{authorizationBean.role.name}" />
+																	<label>Name</label>
+																</h:panelGroup>
+															</div>
+														</div>
+													</div>
+													<p:separator />
+													<p:commandButton value="Save" style="width:auto"
+														action="#{authorizationBean.updateRole(authorizationBean.role)}"
+														icon="ui-icon-save"
+														update=":mainTab:rolesForm:rolesTable :mainTab:myform:growl"
+														process="addRolesDlgId" />
+
+													<p:commandButton process="@this" title="Cancel"
+														onclick="PF('addRolesDlgId').hide()"
+														style="float:right;background-color:red;margin-right:10px;"
+														icon="fa fa-remove" />
+												</p:dialog>
+											</center>
+										</p:column>
+									</p:dataTable>
+								</h:form>
+							</p:panel>
+						</div>
+						<div class="ui-g-12 ui-lg-6">
+							<p:panel header="External Entity">
+								<h:panelGroup styleClass="md-inputfield"
+									style="margin-bottom:10px;margin-top:10px;">
+									<p:inputText>
+									</p:inputText>
+									<label>Search</label>
+								</h:panelGroup>
+								<h:form id="institutionForm">
+									<p:growl />
+									<p:dataTable id="instaTable" var="insta" style="width:100%;"
+										tableStyle="width: auto;" value="#{settings.instaList()}"
+										reflow="true" rows="5" paginator="true">
+										<f:facet name="header">
+											<div class="ui-fluid">
+												<div class="ui-g">
+													<div class="ui-g-10" />
+													<div class="ui-g-1" />
+													<div class="ui-g-1">
+														<p:commandButton id="dialog2" icon="ui-icon-plus"
+															type="button" onclick="PF('dlgInst').show()" />
+														<p:dialog id="dldInstaId"
+															header="External Entity Information" modal="true"
+															width="400" widgetVar="dlgInst" resizable="false"
+															draggable="false" responsive="true" hideEffect="scale">
+															<div class="ui-g form-group" style="margin-bottom: 16px;">
+																<div class="ui-g-12">
+																	<h:panelGroup styleClass="md-inputfield">
+																		<p:inputText value="#{settings.institution.name}" />
+																		<label>Name</label>
+																	</h:panelGroup>
+																</div>
+																<div class="ui-g-12">
+																	<h:panelGroup styleClass="md-inputfield">
+																		<p:inputText
+																			value="#{settings.institution.institutionName}" />
+																		<label>Description</label>
+																	</h:panelGroup>
+																</div>
+																<div class="ui-g-12">
+																	<h:panelGroup styleClass="md-inputfield">
+																		<p:inputText value="#{settings.institution.email}" />
+																		<label>Email</label>
+																	</h:panelGroup>
+																</div>
+															</div>
+															<f:facet name="footer">
+																<p:commandButton value="Save" style="width:auto"
+																	action="#{settings.createInstituion()}"
+																	icon="ui-icon-save"
+																	update=":mainTab:institutionForm:instaTable :mainTab:myform:growl"
+																	process="dldInstaId" />
+															</f:facet>
+														</p:dialog>
+													</div>
+												</div>
+											</div>
+										</f:facet>
+										<p:column headerText="Name">
+											<h:outputText value="#{insta.name}" />
+										</p:column>
+										<p:column headerText="Desc">
+											<h:outputText value="#{insta.institutionName}" />
+										</p:column>
+										<p:column headerText="Email">
+											<h:outputText value="#{insta.email}" />
+										</p:column>
+										<p:column headerText="Actions">
+											<center>
+												<p:commandLink update="@widgetVar(dlgInstEdit)"
+													oncomplete="PF('dlgInstEdit').show()"
+													action="#{settings.getInstObj(insta)}" process="@this">
+													<i class="fa fa-pencil" />
+												</p:commandLink>
+												<p:commandLink style="margin-left:12px;color:red;"
+													action="#{settings.deleteInsta(insta)}"
+													update=":mainTab:institutionForm:instaTable :mainTab:myform:growl ">
+													<p:confirm header="Confirmation"
+														message="Are you sure you want to delete '#{insta.name}' ?"
+														icon="ui-icon-warning" />
+													<i class="fa fa-trash" />
+												</p:commandLink>
+												<p:confirmDialog global="true" showEffect="fade"
+													hideEffect="fade" width="250">
+													<p:commandButton value="Yes"
+														styleClass="ui-confirmdialog-yes GreenButton"
+														icon="ui-icon-check" />
+													<p:commandButton value="No"
+														styleClass="ui-confirmdialog-no RedButton"
+														icon="ui-icon-close" />
+												</p:confirmDialog>
+												<p:dialog id="dldInstaIdEdit"
+													header="Update External Entity Information" modal="true"
+													width="400" widgetVar="dlgInstEdit" resizable="false"
+													draggable="false" responsive="true" hideEffect="scale">
+													<div class="ui-fluid">
+														<div class="ui-g form-group" style="margin-bottom: 16px;">
+															<div class="ui-g-12">
+																<h:panelGroup styleClass="md-inputfield">
+																	<p:inputText value="#{settings.institution.name}" />
+																	<label>Name</label>
+																</h:panelGroup>
+															</div>
+															<div class="ui-g-12">
+																<h:panelGroup styleClass="md-inputfield">
+																	<p:inputText
+																		value="#{settings.institution.institutionName}" />
+																	<label>Description</label>
+																</h:panelGroup>
+															</div>
+															<div class="ui-g-12">
+																<h:panelGroup styleClass="md-inputfield">
+																	<p:inputText value="#{settings.institution.email}" />
+																	<label>Email</label>
+																</h:panelGroup>
+															</div>
+														</div>
+													</div>
+													<p:separator />
+													<p:commandButton value="Save" style="width:auto"
+														action="#{settings.updateInsta(settings.institution)}"
+														icon="ui-icon-save"
+														update=":mainTab:institutionForm:instaTable :mainTab:myform:growl"
+														process="dldInstaIdEdit" />
+
+													<p:commandButton process="@this" title="Cancel"
+														onclick="PF('dldInstaIdEdit').hide()"
+														style="float:right;background-color:red;margin-right:10px;"
+														icon="fa fa-remove" />
+												</p:dialog>
+											</center>
+										</p:column>
+									</p:dataTable>
+								</h:form>
+							</p:panel>
+						</div>
+					</p:tab>
+					<p:tab title="Meetings">
+						<p:panel header="Meeting Types">
+							<h:panelGroup styleClass="md-inputfield"
+								style="margin-bottom:10px;margin-top:10px;">
+								<p:inputText>
+								</p:inputText>
+								<label>Search</label>
+							</h:panelGroup>
+							<h:form id="mtForm">
+								<p:growl />
+								<p:dataTable id="mtTable" var="mt" tableStyle="width: auto;"
+									value="#{settings.findAllmtypes()}" reflow="true" rows="5"
+									paginator="true">
+									<f:facet name="header">
+										<div class="ui-fluid">
+											<div class="ui-g">
+												<div class="ui-g-10" />
+												<div class="ui-g-1" />
+												<div class="ui-g-1">
+													<p:commandButton id="mtDld" icon="ui-icon-plus"
+														type="button" onclick="PF('dlgMt').show()" />
+
+													<p:dialog id="dldMtId" header="Meeting Type Information"
+														modal="true" width="400" widgetVar="dlgMt"
+														resizable="false" draggable="false" responsive="true"
+														hideEffect="scale">
+
+														<div class="ui-g form-group" style="margin-bottom: 16px;">
+															<div class="ui-g-12">
+																<h:panelGroup styleClass="md-inputfield">
+																	<p:inputText value="#{settings.mType.name}" />
+																	<label>Name</label>
+																</h:panelGroup>
+															</div>
+															<div class="ui-g-12">
+																<h:panelGroup styleClass="md-inputfield">
+																	<p:inputText value="#{settings.mType.description}" />
+																	<label>Description</label>
+																</h:panelGroup>
+															</div>
+														</div>
+
+														<f:facet name="footer">
+															<p:commandButton value="Save" style="width:auto"
+																action="#{settings.createMType()}" icon="ui-icon-save"
+																update=":mainTab:mtForm:mtTable :mainTab:myform:growl"
+																process="dldMtId" />
+														</f:facet>
+													</p:dialog>
+												</div>
+											</div>
+										</div>
+									</f:facet>
+									<p:column headerText="Name">
+										<h:outputText value="#{mt.name}" />
+									</p:column>
+									<p:column headerText="Desc">
+										<h:outputText value="#{mt.description}" />
+									</p:column>
+
+									<p:column headerText="Actions">
+										<center>
+
+											<p:commandLink update="@widgetVar(dlgMtEdit)"
+												oncomplete="PF('dlgMtEdit').show()"
+												action="#{settings.getMtObj(mt)}" process="@this">
+												<i class="fa fa-pencil" />
+											</p:commandLink>
+
+											<p:commandLink style="margin-left:12px;color:red;"
+												action="#{settings.deleteMType(mt)}"
+												update=":mainTab:mtForm:mtTable :mainTab:myform:growl ">
+												<p:confirm header="Confirmation"
+													message="Are you sure you want to delete '#{mt.name}' ?"
+													icon="ui-icon-warning" />
+												<i class="fa fa-trash" />
+											</p:commandLink>
+											<p:confirmDialog global="true" showEffect="fade"
+												hideEffect="fade" width="250">
+												<p:commandButton value="Yes"
+													styleClass="ui-confirmdialog-yes GreenButton"
+													icon="ui-icon-check" />
+												<p:commandButton value="No"
+													styleClass="ui-confirmdialog-no RedButton"
+													icon="ui-icon-close" />
+											</p:confirmDialog>
+
+											<div class="ui-fluid">
+												<p:dialog id="dldMtIdEdit" width="400" modal="true"
+													header=" Update Meeting Type Information"
+													widgetVar="dlgMtEdit" resizable="false" draggable="false"
+													responsive="true" hideEffect="scale">
+
+													<div class="ui-g form-group" style="margin-bottom: 16px;">
+														<div class="ui-g-12">
+															<h:panelGroup styleClass="md-inputfield">
+																<p:inputText value="#{settings.mType.name}" />
+																<label>Name</label>
+															</h:panelGroup>
+														</div>
+														<div class="ui-g-12">
+															<h:panelGroup styleClass="md-inputfield">
+																<p:inputText value="#{settings.mType.description}" />
+																<label>Description</label>
+															</h:panelGroup>
+														</div>
+													</div>
+
+													<f:facet name="footer">
+														<p:commandButton value="Save" style="width:auto"
+															action="#{settings.updateMeetingtype(settings.mType)}"
+															icon="ui-icon-save"
+															update=":mainTab:mtForm:mtTable  :mainTab:myform:growl"
+															process="dldMtIdEdit" />
+													</f:facet>
+												</p:dialog>
+											</div>
+										</center>
+									</p:column>
+								</p:dataTable>
+							</h:form>
+						</p:panel>
+					</p:tab>
+					<!-- <p:tab title="Performance Indicators">
+						<h:form id="variableForm">
+							<p:growl />
+							<p:dataTable id="variableTable" var="variableVar"
+								style="width:100%;" value="#{settings.evaluationVariables()}"
+								reflow="true" rows="5" paginator="true">
+								<f:facet name="header">
+									<div class="ui-fluid">
+										<div class="ui-g">
+											<div class="ui-g-10" />
+											<div class="ui-g-1" />
+											<div class="ui-g-1">
+												<p:commandButton icon="ui-icon-plus" type="button"
+													onclick="PF('dlgVar').show()" />
+
+												<p:dialog id="dldVariableId" header="Performance Indicator"
+													modal="true" widgetVar="dlgVar" resizable="false"
+													draggable="false" width="500" responsive="true"
+													hideEffect="scale">
+
+													<div class="ui-g form-group" style="margin-bottom: 16px;">
+														<div class="ui-g-12">
+															<h:panelGroup styleClass="md-inputfield">
+																<p:inputText value="#{settings.evaluationVariable.name}" />
+																<label>Name</label>
+															</h:panelGroup>
+														</div>
+													</div>
+													<f:facet name="footer">
+														<p:commandButton value="Save" style="width:auto"
+															action="#{settings.createVariable()}" icon="ui-icon-save"
+															update=":mainTab:variableForm:variableTable :mainTab:myform:growl"
+															process="dldVariableId" />
+													</f:facet>
+												</p:dialog>
+											</div>
+										</div>
+									</div>
+								</f:facet>
+								<p:column headerText="Name">
+									<h:outputText value="#{variableVar.name}" />
+								</p:column>
+								<p:column headerText="Actions" style="width:40px;">
+									<center>
+										<p:commandLink update="@widgetVar(dlgVariableEdit)"
+											oncomplete="PF('dlgVariableEdit').show()"
+											action="#{settings.getVariableObj(variableVar)}"
+											process="@this">
+											<i class="fa fa-pencil" />
+										</p:commandLink>
+										<p:commandLink style="margin-left:12px;color:red;"
+											action="#{settings.deleteVariable(variableVar)}"
+											update=":mainTab:variableForm:variableTable :mainTab:myform:growl">
+											<p:confirm header="Confirmation"
+												message="Are you sure you want to delete '#{insta.name}' ?"
+												icon="ui-icon-warning" />
+											<i class="fa fa-trash" />
+										</p:commandLink>
+										<p:confirmDialog global="true" showEffect="fade"
+											hideEffect="fade" width="250">
+											<p:commandButton value="Yes"
+												styleClass="ui-confirmdialog-yes GreenButton"
+												icon="ui-icon-check" />
+											<p:commandButton value="No"
+												styleClass="ui-confirmdialog-no RedButton"
+												icon="ui-icon-close" />
+										</p:confirmDialog>
+										<p:dialog id="dldVariableIdEdit"
+											header="Performance Indicator" modal="true" width="400"
+											widgetVar="dlgVariableEdit" resizable="false"
+											draggable="false" responsive="true" hideEffect="scale">
+											<div class="ui-fluid">
+												<div class="ui-g form-group" style="margin-bottom: 16px;">
+													<div class="ui-g-12">
+														<h:panelGroup styleClass="md-inputfield">
+															<p:inputText value="#{settings.evaluationVariable.name}" />
+															<label>Name</label>
+														</h:panelGroup>
+													</div>
+												</div>
+											</div>
+											<p:separator />
+											<p:commandButton style="width:auto"
+												action="#{settings.updateVariable(variableVar)}"
+												icon="ui-icon-save"
+												update=":mainTab:variableForm:variableTable :mainTab:myform:growl"
+												process="dldVariableIdEdit" />
+
+											<p:commandButton process="@this" title="Cancel"
+												onclick="PF('dldVariableIdEdit').hide()"
+												style="float:right;background-color:red;margin-right:10px;"
+												icon="fa fa-remove" />
+										</p:dialog>
+									</center>
+								</p:column>
+							</p:dataTable>
+						</h:form>
+					</p:tab> -->
+				</p:tabView>
+			</div>
+		</div>
+	</ui:define>
+</ui:composition>

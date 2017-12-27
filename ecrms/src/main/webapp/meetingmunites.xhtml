@@ -1,0 +1,526 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pu="http://primefaces.org/ultima"
+	template="/WEB-INF/template.xhtml">
+
+	<ui:define name="content">
+		<style type="text/css">
+.cars-datalist .text-column p:last-child {
+	color: #757575;
+}
+
+.cars-datalist .car-item i, .cars-datalist .car-item .car-details {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.cars-datalist .car-item button {
+	float: right;
+}
+
+.cars-datalist ul {
+	margin: 0;
+	padding: 0;
+}
+
+.ui-car-display td:last-child {
+	font-weight: 700;
+}
+
+@media ( max-width :640px) {
+	.cars-datalist .text-column {
+		text-align: center;
+	}
+}
+</style>
+		<p:breadCrumb style="margin-bottom:10px;" id="mm_crumb">
+			<p:menuitem value="Dashboard" url="dashboard.xhtml" />
+			<p:menuitem value="Meetings" url="meetings.xhtml" />
+			<p:menuitem value="Meeting details" url="meetingDetails.xhtml" />
+			<p:menuitem value="Add Resolutions" url="meetingmunites.xhtml" />
+		</p:breadCrumb>
+		<div class="card">
+			<div class="ui-g">
+				<div class="ui-g-12">
+					<h:form id="form">
+						<p:panel id="meetingDetails" header="Prepare minutes"
+							>
+							<p:growl id="growl" showDetail="true" />
+							<center>
+								<h1 style="font-weight: bold; color: maroon;">MINUTES</h1>
+								<h2 style="font-weight: bold;">#{meetingMinutes.selectedMeeting.title}</h2>
+							</center>
+							<p:separator id="f_sepa" />
+							<div class="ui-g">
+
+								<div class="ui-g-12 ui-md-6 ui-lg-3">
+									<h:outputText value="|Date:" style="font-weight: bold;" />
+									#{createMeeting.customeDate(meetingMinutes.selectedMeeting.startTime)}
+									-
+									#{createMeeting.customeDate(meetingMinutes.selectedMeeting.endTime)}
+									#{createMeeting.meetingYear(meetingMinutes.selectedMeeting.startTime)}
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-4">
+									<h:outputText value="|Location:" style="font-weight: bold;" />
+									#{meetingMinutes.selectedMeeting.location}
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-5">
+									<h:outputText value="|Meeting called by:"
+										style="font-weight: bold;" />
+									#{meetingMinutes.organizer.employee.firstName}
+									#{meetingMinutes.organizer.employee.lastName}
+								</div>
+							</div>
+							<p:separator id="s_sepa" />
+							<div class="ui-g">
+								<div class="ui-g-12 ui-md-6 ui-lg-3">
+									<h:outputLabel value="|Time" style="font-weight: bold;" />
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-2">
+									<h:outputLabel value="|Name" style="font-weight: bold;" />
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-3">
+									<h:outputLabel value="|Objectives" style="font-weight: bold;" />
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-3">
+									<h:outputLabel value="|Presenter" style="font-weight: bold;" />
+								</div>
+								<div class="ui-g-12 ui-md-6 ui-lg-1">
+									<h:outputLabel value="|Action" style="font-weight: bold;" />
+								</div>
+							</div>
+							<p:separator id="t_sepa" />
+							<p:outputPanel id="outResolution">
+								<p:growl showDetail="true" id="growlOut" />
+								<p:repeat value="#{meetingMinutes.tbyMeeting()}" var="topi">
+									<div class="ui-g">
+										<div class="ui-g-12 ui-md-6 ui-lg-3">
+											#{meetingMinutes.convertToTime(topi.startTime)} -
+											#{meetingMinutes.convertToEndTime(topi.endTime)}</div>
+										<div class="ui-g-12 ui-md-6 ui-lg-2">#{topi.name}</div>
+										<div class="ui-g-12 ui-md-6 ui-lg-3">#{topi.objective}</div>
+										<div class="ui-g-12 ui-md-6 ui-lg-3">#{createMeeting.getPresenterDetails(topi)}</div>
+										<div class="ui-g-12 ui-md-6 ui-lg-1"
+											style="text-align: center">
+											<p:commandLink action="#{meetingMinutes.getTopicObj(topi)}"
+												disabled="#{loginBean.disableScheduling}" process="@this"
+												oncomplete="PF('addResDld').show();">
+												<i class="fa fa-plus" />
+											</p:commandLink>
+											<p:commandLink style="margin-left:12px;"
+												action="#{meetingMinutes.getTopicObj(topi)}" process="@this"
+												update="viewResDldId" oncomplete="PF('viewResDld').show();">
+												<i class="fa fa-eye" />
+												<span class="badge"><p:outputLabel
+														value="#{meetingMinutes.resolutionPerTopic(topi).size()}"
+														style="color:#F83207;font-weight:bold;" /></span>
+
+											</p:commandLink>
+										</div>
+									</div>
+									<p:separator />
+
+									<p:dialog header="Add Resolution" widgetVar="addResDld"
+										id="addResDldId" modal="true" width="650" responsive="true"
+										hideEffect="scale">
+										<p:growl showDetail="true" />
+										<p:scrollPanel mode="native" style="width:auto;height:400px;">
+											<p:growl showDetail="true" id="growlUpload" />
+											<div class="ui-fluid">
+												<div class="ui-g form-group" style="margin-bottom: 16px;">
+													<div class="ui-g-12">
+														<p:selectOneMenu value="#{meetingMinutes.selectedCType}"
+															required="true" label="Resolution Type">
+															<f:selectItem itemLabel="Resolution Type" itemValue="" />
+															<f:selectItems value="#{meetingMinutes.types}" var="type"
+																itemLabel="#{type}" itemValue="#{type.toString()}" />
+														</p:selectOneMenu>
+													</div>
+													<div class="ui-g-12">
+														<h:panelGroup styleClass="md-inputfield">
+															<p:inputTextarea required="true" label="Description"
+																value="#{meetingMinutes.resolution.description}" />
+															<label>Description</label>
+														</h:panelGroup>
+													</div>
+												</div>
+												<div class="ui-g-12">
+
+													<div class="ui-g ui-fluid">
+														<div class="ui-g-6">
+															<h:panelGroup styleClass="md-inputfield"
+																style="margin-top:10px;">
+																<p:calendar
+																	value="#{meetingMinutes.execution.startDate}"
+																	disabledWeekends="true"
+																	mindate="#{meetingMinutes.selectedMeeting.startTime}" />
+																<label>Start Date</label>
+															</h:panelGroup>
+														</div>
+														<div class="ui-g-6">
+															<h:panelGroup styleClass="md-inputfield"
+																style="margin-top:10px;">
+																<p:calendar value="#{meetingMinutes.execution.endDate}"
+																	disabledWeekends="true"
+																	mindate="#{meetingMinutes.selectedMeeting.startTime}" />
+																<label>DateLine</label>
+															</h:panelGroup>
+														</div>
+														<div class="ui-g-6">
+															<h:panelGroup styleClass="md-inputfield"
+																style="margin-top:10px;">
+																<p:watermark value="Assigned By *" for="assignedBy" />
+																<p:selectOneMenu value="#{meetingMinutes.assignedBy}"
+																	label="Assigned To" editable="true" effect="fade"
+																	filter="true" id="assignedBy"
+																	filterMatchMode="startsWith" style="margin-top:7px">
+																	<p:ajax listener="#{meetingMinutes.onByChange()}"
+																		update="assignedTo" />
+																	<f:selectItems
+																		value="#{meetingMinutes.autoCompleteEmployee()}"
+																		var="by" itemLabel="#{by.email}"
+																		itemValue="#{by.email}" />
+																</p:selectOneMenu>
+
+															</h:panelGroup>
+														</div>
+														<div class="ui-g-6">
+															<h:panelGroup styleClass="md-inputfield"
+																style="margin-top:10px;">
+																<p:watermark value="Assigned To *" for="assignedTo" />
+																<p:selectOneMenu value="#{meetingMinutes.assignedTo}"
+																	editable="true" effect="fade" filter="true"
+																	id="assignedTo" filterMatchMode="startsWith"
+																	style="margin-top:7px">
+																	<p:ajax
+																		listener="#{meetingMinutes.removeAllEmployee()}" />
+																	<f:selectItems value="#{meetingMinutes.assignToFilted}"
+																		var="to" itemLabel="#{to.email}"
+																		itemValue="#{to.email}" />
+																</p:selectOneMenu>
+
+															</h:panelGroup>
+														</div>
+														<div class="ui-g-12">
+															<h:panelGroup styleClass="md-inputfield"
+																style="margin-top:10px;">
+																<p:inputText id="slider"
+																	value="#{meetingMinutes.execution.weight}">
+																</p:inputText>
+																<p:slider for="slider" maxValue="10" minValue="1" />
+																<label>Weight (1-10)</label>
+															</h:panelGroup>
+														</div>
+													</div>
+												</div>
+												<div class="ui-g-12">
+													<p:fileUpload fileUploadListener="#{meetingMinutes.upload}"
+														mode="advanced" update="growlUpload"
+														dragDropSupport="false" multiple="true" style="width:100%"
+														process="@this" />
+												</div>
+
+											</div>
+										</p:scrollPanel>
+
+										<p:commandButton update=":form:outResolution"
+											process="addResDldId"
+											action="#{meetingMinutes.addResolution()}"
+											title="Add Resolution" oncomplete="PF('addResDld').hide()"
+											style="float:right;margin-top:7px;" icon="fa fa-plus">
+											<p:confirm header="Confirmation" message="Are you sure?"
+												icon="ui-icon-warning" />
+										</p:commandButton>
+										<p:confirmDialog global="true" showEffect="fade"
+											hideEffect="fade" width="250">
+											<p:commandButton value="Yes" type="button"
+												styleClass="ui-confirmdialog-yes GreenButton"
+												icon="ui-icon-check" />
+											<p:commandButton value="No" type="button"
+												styleClass="ui-confirmdialog-no RedButton"
+												icon="ui-icon-close" />
+										</p:confirmDialog>
+										<p:commandButton process="addResDldId" title="Cancel"
+											onclick="PF('addResDld').hide()"
+											style="float:right;background-color:red;margin-right:10px;margin-top:7px;"
+											icon="fa fa-remove" />
+									</p:dialog>
+
+
+									<p:dialog header="Topic : #{meetingMinutes.topic.name}"
+										widgetVar="viewResDld" id="viewResDldId" modal="true"
+										resizable="false" draggable="false" width="1050"
+										responsive="true" hideEffect="scale">
+										<p:growl showDetail="true" id="growlExe" />
+
+										<div class="ui-g">
+											<div class="ui-g-3">
+												<h:outputText value="|Description"
+													style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-3">
+												<h:outputText value="|Assigned by"
+													style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-3">
+												<h:outputText value="|Assigned to"
+													style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-1">
+												<h:outputText value="|From" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-1">
+												<h:outputText value="|To" style="font-weight: bold;" />
+											</div>
+											<div class="ui-g-1">
+												<h:outputText value="|Action" style="font-weight: bold;" />
+											</div>
+										</div>
+										<p:scrollPanel id="scrollId" mode="native"
+											style="height:300px;">
+											<p:repeat var="tasks" value="#{meetingMinutes.resolutions}">
+												<div class="ui-g">
+													<div class="ui-g-3">
+														<h:outputText value="#{tasks.description}" />
+													</div>
+													<p:repeat var="exec"
+														value="#{meetingMinutes.executionByResolution(tasks)}">
+														<div class="ui-g-3">
+															<h:outputText value="|#{exec.assignedBy.email}" />
+														</div>
+														<div class="ui-g-3">
+															<h:outputText value="|#{exec.assignedTo.email}" />
+														</div>
+														<div class="ui-g-1">
+															<h:outputText
+																value="|#{meetingMinutes.convertToTimeForExecution(exec.startDate)}" />
+														</div>
+														<div class="ui-g-1">
+															<h:outputText
+																value="|#{meetingMinutes.convertToTimeForExecution(exec.endDate)}" />
+														</div>
+
+														<div class="ui-g-1">
+
+															<p:tooltip for="addComment" value="Add comment"
+																position="top" />
+															<p:commandLink id="addComment"
+																disabled="#{meetingMinutes.disableComment(exec)}"
+																action="#{meetingMinutes.getCurrentExecution(exec)}"
+																update="@widgetVar(reasonDlg)"
+																oncomplete="PF('reasonDlg').show();" process="@this">
+																<i class="fa fa-comment-o" />
+															</p:commandLink>
+															<p:tooltip for="eResolution" value="Edit Resolution"
+																position="top" />
+															
+															<p:commandLink id="eResolution" style="margin-left:2px"
+																disabled="#{meetingMinutes.disableEdit(exec)}"
+																action="#{meetingMinutes.getCurrentExecution(exec,tasks)}"
+																update="@widgetVar(addResDldEdit)"
+																oncomplete="PF('addResDldEdit').show();" process="@this">
+																<i class="fa fa-pencil" />
+															</p:commandLink>
+															
+															<p:tooltip for="dResolution" value="Delete Resolution"
+																position="top" />
+															<p:commandLink id="dResolution" style="margin-left:2px"
+																disabled="#{loginBean.disableScheduling}"
+																action="#{meetingMinutes.deleteResolution(tasks)}"
+																process="@this" update=":form:outResolution">
+																<i class="fa fa-trash" style="color: red;" />
+																<p:confirm header="Confirmation" message="Are you sure?"
+																	icon="ui-icon-warning" />
+															</p:commandLink>
+
+															<p:tooltip for="aResolution" value="Assign Execution"
+																position="top" />
+															<p:growl id="growlExeSend" showDetail="true" />
+															<p:commandLink id="aResolution" style="margin-left:2px"
+																action="#{meetingMinutes.sendPerExecution(exec)}"
+																disabled="#{loginBean.disableScheduling}"
+																process="@this" update="growlExeSend">
+																<i class="fa fa-send" style="color: green;" />
+																<p:confirm header="Confirmation" message="Are you sure?"
+																	icon="ui-icon-warning" />
+															</p:commandLink>
+														</div>
+													</p:repeat>
+												</div>
+												<p:separator />
+											</p:repeat>
+										</p:scrollPanel>
+										<p:commandButton value="Send" process="@this"
+											styleClass="green-btn"
+											disabled="#{loginBean.disableScheduling}" update="growlExe"
+											action="#{meetingMinutes.sendExecution()}"
+											style="margin-top:7px;" icon="fa fa-send-o">
+											<p:confirm header="Confirmation" message="Are you sure?"
+												icon="ui-icon-warning" />
+										</p:commandButton>
+									</p:dialog>
+								</p:repeat>
+
+								<p:dialog header="Edit Resolution" widgetVar="addResDldEdit"
+									id="addResDldIdEdit" modal="true" width="650" responsive="true"
+									hideEffect="scale">
+									<p:growl showDetail="true" />
+									<p:scrollPanel id="scrollPedit" mode="native"
+										style="width:auto;height:400px;">
+										<p:growl showDetail="true" id="growlUploadEdit" />
+										<div class="ui-fluid">
+											<div class="ui-g form-group" style="margin-bottom: 16px;">
+												<div class="ui-g-12">
+													<p:selectOneMenu value="#{meetingMinutes.selectedCType}"
+														label="Resolution Type">
+														<f:selectItem itemLabel="Resolution Type" itemValue="" />
+														<f:selectItems value="#{meetingMinutes.types}" var="type"
+															itemLabel="#{type}" itemValue="#{type.toString()}" />
+													</p:selectOneMenu>
+												</div>
+												<div class="ui-g-12">
+													<h:panelGroup styleClass="md-inputfield">
+														<p:inputTextarea required="true" label="Description"
+															value="#{meetingMinutes.resolution.description}" />
+														<label>Description</label>
+													</h:panelGroup>
+												</div>
+											</div>
+											<div class="ui-g-12">
+												<div class="ui-g ui-fluid">
+													<div class="ui-g-6">
+														<h:panelGroup styleClass="md-inputfield"
+															style="margin-top:10px;">
+															<p:calendar value="#{meetingMinutes.execution.startDate}"
+																mindate="#{meetingMinutes.selectedMeeting.startTime}" />
+															<label>Start Date</label>
+														</h:panelGroup>
+													</div>
+													<div class="ui-g-6">
+														<h:panelGroup styleClass="md-inputfield"
+															style="margin-top:10px;">
+															<p:calendar value="#{meetingMinutes.execution.endDate}"
+																
+																mindate="#{meetingMinutes.selectedMeeting.startTime}" />
+															<label>DateLine</label>
+														</h:panelGroup>
+													</div>
+													<div class="ui-g-6">
+														<h:panelGroup styleClass="md-inputfield"
+															style="margin-top:10px;">
+															<p:watermark value="Assigned By *" for="assignedByEdit" />
+															<p:selectOneMenu value="#{meetingMinutes.assignedBy}"
+																label="Assigned By" editable="true" effect="fade"
+																filter="true" id="assignedByEdit"
+																filterMatchMode="startsWith" style="margin-top:7px">
+				
+																<f:selectItems
+																	value="#{meetingMinutes.autoCompleteEmployee()}"
+																	var="by" itemLabel="#{by.email}"
+																	itemValue="#{by.email}" />
+															</p:selectOneMenu>
+
+														</h:panelGroup>
+													</div>
+													<div class="ui-g-6">
+														<h:panelGroup styleClass="md-inputfield"
+															style="margin-top:10px;">
+															<p:watermark value="Assigned To *" for="assignedToEdit" />
+															<p:selectOneMenu value="#{meetingMinutes.assignedTo}"
+																editable="true" effect="fade" filter="true"
+																id="assignedToEdit" filterMatchMode="startsWith"
+																style="margin-top:7px">
+																<f:selectItems
+																	value="#{meetingMinutes.autoCompleteEmployee()}"
+																	var="to" itemLabel="#{to.email}"
+																	itemValue="#{to.email}" />
+															</p:selectOneMenu>
+
+														</h:panelGroup>
+													</div>
+													<div class="ui-g-12">
+														<h:panelGroup styleClass="md-inputfield"
+															style="margin-top:10px;">
+															<p:inputText id="sliderEdit"
+																value="#{meetingMinutes.execution.weight}">
+															</p:inputText>
+															<p:slider for="sliderEdit" maxValue="10" minValue="1" />
+															<label>Weight (1-10)</label>
+														</h:panelGroup>
+													</div>
+												</div>
+											</div>
+											<div class="ui-g-12">
+												<p:fileUpload fileUploadListener="#{meetingMinutes.upload}"
+													mode="advanced" update="growlUploadEdit"
+													dragDropSupport="false" multiple="true" style="width:100%"
+													process="@this" />
+											</div>
+										</div>
+									</p:scrollPanel>
+
+									<p:commandButton process="addResDldIdEdit"
+										update="@widgetVar(viewResDld)"
+										action="#{meetingMinutes.updateResolution(meetingMinutes.resolution)}"
+										title="Edit Resolution"
+										oncomplete="PF('addResDldEdit').hide();PF('viewResDld').show()"
+										style="float:right;margin-top:7px;" icon="fa fa-save">
+										<p:confirm header="Confirmation" message="Are you sure?"
+											icon="ui-icon-warning" />
+									</p:commandButton>
+									<p:confirmDialog global="true" showEffect="fade"
+										hideEffect="fade" width="250">
+										<p:commandButton value="Yes" type="button"
+											styleClass="ui-confirmdialog-yes GreenButton"
+											icon="ui-icon-check" />
+										<p:commandButton value="No" type="button"
+											styleClass="ui-confirmdialog-no RedButton"
+											icon="ui-icon-close" />
+									</p:confirmDialog>
+									<p:commandButton process="addResDldIdEdit" title="Cancel"
+										onclick="PF('addResDld').hide()"
+										style="float:right;background-color:red;margin-right:10px;margin-top:7px;"
+										icon="fa fa-remove" />
+								</p:dialog>
+								<p:dialog header="Comment" widgetVar="reasonDlg"
+									id="reasonDlgId" modal="true" width="400" responsive="true"
+									hideEffect="scale">
+									<div class="ui-g ui-fluid">
+										<div class="ui-g-12">
+											<h:panelGroup styleClass="md-inputfield"
+												style="margin-top:15px;">
+												<p:inputTextarea label="Comment"
+													value="#{meetingMinutes.executationReport.description}" />
+												<label>Comment</label>
+											</h:panelGroup>
+										</div>
+									</div>
+									<p:growl id="grow" showDetail="true" />
+									<p:commandButton value="Continue" process="reasonDlgId"
+										action="#{meetingMinutes.addComment()}" update="grow"
+										oncomplete="PF('reasonDlg').hide()" />
+								</p:dialog>
+							</p:outputPanel>
+						</p:panel>
+					</h:form>
+					<p:ajaxStatus style="display:block;margin-bottom:2em;">
+						<f:facet name="start">
+							<p:graphicImage name="/ultima-layout/images/ajax-loader.gif" />
+						</f:facet>
+					</p:ajaxStatus>
+					<p:ajaxStatus onstart="PF('statusDialog').show()"
+						onsuccess="PF('statusDialog').hide()" />
+
+					<p:dialog widgetVar="statusDialog" modal="true" draggable="false"
+						closable="false" resizable="false" showHeader="false">
+						<p:graphicImage name="/ultima-layout/images/ajax-loader.gif" />
+					</p:dialog>
+				</div>
+			</div>
+		</div>
+	</ui:define>
+
+</ui:composition>

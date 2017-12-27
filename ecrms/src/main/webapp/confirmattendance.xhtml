@@ -1,0 +1,107 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pu="http://primefaces.org/ultima"
+	template="/WEB-INF/templateConfirm.xhtml">
+
+	<ui:define name="content">
+		<div class="card" style="height: 100%;">
+			<h:form id="myForm">
+				<f:metadata>
+					<f:viewParam name="meetingId" value="#{attendance.meetingId}" />
+					<f:viewParam name="to" value="#{attendance.to}" />
+				</f:metadata>
+				<p:outputPanel style="text-align: center;">
+
+					<p:growl showDetail="true" id="growl" />
+					<center>
+						<h1>Hello,Confirm your attendance for this meeting</h1>
+						<p:panelGrid columns="2">
+
+							<h:outputText value="Title:"
+								style="font-weight:bold;float:right;" />
+							#{attendance.meetingDetails().title}
+
+							<h:outputText value="Type:" style="font-weight:bold;float:right;" />
+							#{attendance.meetingDetails().meetingType.name}
+
+							<h:outputText value="Purpose:"
+								style="font-weight:bold;float:right;" />
+							#{attendance.meetingDetails().purpose}
+
+							<h:outputText value="Location:"
+								style="font-weight:bold;float:right;" />
+							#{attendance.meetingDetails().location}
+
+							<h:outputText value="Date:" style="font-weight:bold;float:right;" />
+							#{createMeeting.customeDate(attendance.meetingDetails().startTime)}
+
+							<h:outputText value="Time:" style="font-weight:bold;float:right;" />
+							#{createMeeting.convertToTime(attendance.meetingDetails().startTime)}
+							-
+							#{createMeeting.convertToTime(attendance.meetingDetails().endTime)}
+
+							<h:outputText value="Organized By:"
+								style="font-weight:bold;float:right;" />
+							<p:outputLabel
+								value="#{attendance.organizer.employee.firstName} #{attendance.organizer.employee.lastName}" />
+
+						</p:panelGrid>
+					</center>
+					<p:commandButton value="Yes, i will attend" styleClass="green-btn"
+						action="#{attendance.confirm()}" update=":myForm:growl"
+						icon="fa fa-thumbs-up"
+						style="display:inline-block;margin-top:5px;margin-right:15px;" />
+					<p:commandButton value="No , i will not attend"
+						action="#{attendance.cancel()}" styleClass="red-btn"
+						update=":myForm:growl" icon="fa fa-thumbs-down"
+						style="display:inline-block;margin-top:5px;margin-right:15px;" />
+					<p:commandButton value="Delegate" icon="fa fa-mail-forward"
+						oncomplete="PF('delegateDlg').show();"
+						style="display:inline-block;margin-top:5px" />
+					<div class="ui-fluid">
+						<p:dialog header="Delegate" widgetVar="delegateDlg"
+							resizable="false" id="delegateDlgId" width="700" modal="true"
+							draggable="false" responsive="true" hideEffect="scale">
+							<p:growl id="newGrowl" showDetail="true" />
+							<div class="ui-g ui-fluid">
+								<p:panelGrid columns="3" layout="grid"
+									styleClass="ui-panelgrid-blank form-group">
+									<h:panelGroup styleClass="md-inputfield">
+										<p:inputText value="#{attendance.institution.name}" />
+										<label>Names</label>
+									</h:panelGroup>
+									<h:panelGroup styleClass="md-inputfield">
+										<p:inputText value="#{attendance.institution.email}" />
+										<label>Email</label>
+									</h:panelGroup>
+									<h:panelGroup styleClass="md-inputfield">
+										<p:inputText value="#{attendance.institution.phoneNumber}" />
+										<label>Phone</label>
+									</h:panelGroup>
+									
+									<h:panelGroup styleClass="md-inputfield">
+										<p:inputText
+											value="#{attendance.institution.institutionName}" />
+										<label>Institution</label>
+									</h:panelGroup>
+									
+									<h:panelGroup styleClass="md-inputfield">
+										<p:inputText value="#{attendance.institution.position}" />
+										<label>Position</label>
+									</h:panelGroup>
+									
+									<p:commandButton icon="fa fa-plus" value="Add new"
+										process="delegateDlgId" update="newGrowl"
+										action="#{attendance.delegate()}" />
+								</p:panelGrid>
+							</div>
+						</p:dialog>
+					</div>
+				</p:outputPanel>
+			</h:form>
+		</div>
+	</ui:define>
+</ui:composition>
